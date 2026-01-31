@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
 import { DOWN, UP, PENDING, MAINTENANCE } from "../util.ts";
 
 export default {
@@ -105,7 +106,12 @@ export default {
             if (!this.content || this.content === 0) {
                 return "";
             }
-            return this.$root.datetime(this.content.time);
+            // Use readable date format like "Jan 30, 2026 3:30:45 PM"
+            const time = this.content.time;
+            if (!time) {
+                return "";
+            }
+            return dayjs.utc(time).tz(this.$root.timezone).format("MMM D, YYYY h:mm:ss A");
         },
     },
 };

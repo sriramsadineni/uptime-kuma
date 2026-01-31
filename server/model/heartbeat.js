@@ -40,6 +40,7 @@ class Heartbeat extends BeanModel {
             duration: this._duration,
             retries: this._retries,
             response: this._response,
+            entryKey: this._entryKey,
         };
     }
 

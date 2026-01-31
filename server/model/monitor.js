@@ -83,15 +83,21 @@ class Monitor extends BeanModel {
      * @returns {Promise<object>} Object ready to parse
      */
     async toPublicJSON(showTags = false, certExpiry = false) {
+        // Read both camelCase and snake_case (raw JOIN from getMonitorList returns snake_case)
+        const sendUrl = this.sendUrl ?? this.send_url;
+        const customUrl = this.customUrl ?? this.custom_url;
+        const showDetailView = this.showDetailView ?? this.show_detail_view;
+
         let obj = {
             id: this.id,
             name: this.name,
-            sendUrl: this.sendUrl,
+            sendUrl: !!sendUrl,
+            showDetailView: !!showDetailView,
             type: this.type,
         };
 
-        if (this.sendUrl) {
-            obj.url = this.customUrl ?? this.url;
+        if (obj.sendUrl) {
+            obj.url = customUrl ?? this.url;
         }
 
         if (showTags) {
@@ -100,12 +106,38 @@ class Monitor extends BeanModel {
 
         if (
             certExpiry &&
-            (this.type === "http" || this.type === "keyword" || this.type === "json-query") &&
+            (this.type === "http" || this.type === "keyword" || this.type === "json-query" || this.type === "json-query-multi") &&
             this.getURLProtocol() === "https:"
         ) {
             const { certExpiryDaysRemaining, validCert } = await this.getCertExpiry(this.id);
             obj.certExpiryDaysRemaining = certExpiryDaysRemaining;
             obj.validCert = validCert;
+        }
+
+        // Include health check entries for json-query-multi monitors
+        if (this.type === "json-query-multi" && this.health_check_entries) {
+            try {
+                const configuredEntries = JSON.parse(this.health_check_entries);
+                if (Array.isArray(configuredEntries) && configuredEntries.length > 0) {
+                    const entryHeartbeats = [];
+                    for (const entryKey of configuredEntries) {
+                        // Get recent heartbeats for this entry (same as main bar - 100)
+                        const recentBeats = await R.getAll(
+                            "SELECT status, time, msg FROM heartbeat WHERE monitor_id = ? AND entry_key = ? ORDER BY time DESC LIMIT 100",
+                            [this.id, entryKey]
+                        );
+                        entryHeartbeats.push({
+                            key: entryKey,
+                            status: recentBeats.length > 0 ? recentBeats[0].status : null,
+                            msg: recentBeats.length > 0 ? recentBeats[0].msg : null,
+                            beats: recentBeats.reverse(), // oldest first for display
+                        });
+                    }
+                    obj.healthCheckEntries = entryHeartbeats;
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
         }
 
         return obj;
@@ -207,6 +239,12 @@ class Monitor extends BeanModel {
             conditions: JSON.parse(this.conditions),
             ipFamily: this.ipFamily,
             expectedTlsAlert: this.expected_tls_alert,
+
+            // Health check entries (multi-entry health check)
+            healthCheckEntries: this.health_check_entries ? JSON.parse(this.health_check_entries) : [],
+            healthEntriesPath: this.health_entries_path,
+            healthStatusField: this.health_status_field || "status",
+            healthExpectedValue: this.health_expected_value || "Healthy",
 
             // ping advanced options
             ping_numeric: this.isPingNumeric(),
@@ -469,7 +507,7 @@ class Monitor extends BeanModel {
                 if (await Monitor.isUnderMaintenance(this.id)) {
                     bean.msg = "Monitor under maintenance";
                     bean.status = MAINTENANCE;
-                } else if (this.type === "http" || this.type === "keyword" || this.type === "json-query") {
+                } else if (this.type === "http" || this.type === "keyword" || this.type === "json-query" || this.type === "json-query-multi") {
                     // Do not do any queries/high loading things before the "bean.ping"
                     let startTime = dayjs().valueOf();
 
@@ -713,6 +751,106 @@ class Monitor extends BeanModel {
                             throw new Error(
                                 `JSON query does not pass (comparing ${response} ${this.jsonPathOperator} ${this.expectedValue})`
                             );
+                        }
+                    } else if (this.type === "json-query-multi") {
+                        // Multi-entry health check monitor
+                        let data = res.data;
+                        let entriesPath = this.health_entries_path || "entries";
+                        let statusField = this.health_status_field || "status";
+                        let expectedValue = this.health_expected_value || "Healthy";
+                        let configuredEntries = this.health_check_entries ? JSON.parse(this.health_check_entries) : [];
+
+                        // Parse the response to get entries
+                        let parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+                        // Get entries object using the configured path
+                        let entriesObj = parsedData;
+                        if (entriesPath) {
+                            const pathParts = entriesPath.split(".");
+                            for (const part of pathParts) {
+                                entriesObj = entriesObj?.[part];
+                            }
+                        }
+
+                        if (!entriesObj || typeof entriesObj !== "object") {
+                            throw new Error(`Could not find entries at path: ${entriesPath}`);
+                        }
+
+                        // Check each configured entry and store individual heartbeats
+                        let failedEntries = [];
+                        let successEntries = [];
+                        let entryHeartbeats = [];
+
+                        for (const entryKey of configuredEntries) {
+                            const entry = entriesObj[entryKey];
+                            if (!entry) {
+                                failedEntries.push({ key: entryKey, reason: "Entry not found" });
+                                continue;
+                            }
+
+                            // Get status value from entry
+                            let entryStatus = entry;
+                            if (statusField) {
+                                const fieldParts = statusField.split(".");
+                                for (const part of fieldParts) {
+                                    entryStatus = entryStatus?.[part];
+                                }
+                            }
+
+                            // Check if status matches expected value
+                            const isHealthy = String(entryStatus) === String(expectedValue);
+
+                            if (isHealthy) {
+                                successEntries.push(entryKey);
+                            } else {
+                                failedEntries.push({ key: entryKey, reason: `Status: ${entryStatus}` });
+                            }
+
+                            // Create entry-level heartbeat
+                            let entryBean = R.dispense("heartbeat");
+                            entryBean.monitor_id = this.id;
+                            entryBean.time = R.isoDateTimeMillis(dayjs.utc());
+                            entryBean.ping = bean.ping;
+                            entryBean.entry_key = entryKey;
+                            entryBean.status = isHealthy ? UP : DOWN;
+                            entryBean.msg = isHealthy
+                                ? `${entryKey}: ${statusField} = ${entryStatus}`
+                                : `${entryKey}: Expected ${expectedValue}, got ${entryStatus}`;
+                            entryBean.important = false; // Will be updated below
+                            entryBean.duration = 0;
+                            entryBean.down_count = 0;
+                            entryBean.retries = retries;
+
+                            entryHeartbeats.push(entryBean);
+                        }
+
+                        // Store entry heartbeats
+                        for (const entryBean of entryHeartbeats) {
+                            // Check if this is an important heartbeat (status changed)
+                            const lastEntryBeat = await R.findOne("heartbeat", " monitor_id = ? AND entry_key = ? ORDER BY time DESC ", [
+                                this.id,
+                                entryBean.entry_key
+                            ]);
+                            if (!lastEntryBeat || lastEntryBeat.status !== entryBean.status) {
+                                entryBean.important = true;
+                            }
+                            await R.store(entryBean);
+
+                            // Emit entry heartbeat to frontend
+                            io.to(this.user_id).emit("heartbeatEntry", {
+                                ...entryBean.toJSON(),
+                                monitorID: this.id,
+                                entryKey: entryBean.entry_key,
+                            });
+                        }
+
+                        // Set overall monitor status
+                        if (failedEntries.length === 0) {
+                            bean.status = UP;
+                            bean.msg = `All ${successEntries.length} entries healthy`;
+                        } else {
+                            const failedNames = failedEntries.map(e => `${e.key} (${e.reason})`).join(", ");
+                            throw new Error(`${failedEntries.length}/${configuredEntries.length} entries unhealthy: ${failedNames}`);
                         }
                     }
                 } else if (this.type === "ping") {

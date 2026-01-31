@@ -1,32 +1,88 @@
 @import "@vuepic/vue-datepicker/dist/main.css";
 @import "vars.scss";
 
+// =============================================================================
+// Vue Datepicker - shadcn/zinc Theme Override
+// =============================================================================
+
+// Light theme
+.dp__theme_light {
+    --dp-background-color: white;
+    --dp-text-color: #{$zinc-900};
+    --dp-hover-color: #{$zinc-100};
+    --dp-hover-text-color: #{$zinc-900};
+    --dp-hover-icon-color: #{$zinc-600};
+    --dp-primary-color: #{$zinc-900};
+    --dp-primary-text-color: #{$zinc-50};
+    --dp-secondary-color: #{$zinc-200};
+    --dp-border-color: #{$zinc-200};
+    --dp-menu-border-color: #{$zinc-200};
+    --dp-border-color-hover: #{$zinc-400};
+    --dp-disabled-color: #{$zinc-100};
+    --dp-disabled-color-text: #{$zinc-400};
+    --dp-scroll-bar-background: #{$zinc-100};
+    --dp-scroll-bar-color: #{$zinc-300};
+    --dp-success-color: #{$emerald-500};
+    --dp-success-color-disabled: #{$zinc-400};
+    --dp-icon-color: #{$zinc-500};
+    --dp-danger-color: #{$red-500};
+    --dp-highlight-color: rgba(24, 24, 27, 0.1);
+}
+
+// Dark theme
 // Must use #{ }
 // Remark: https://stackoverflow.com/questions/50202991/unable-to-set-scss-variable-to-css-variable
 .dp__theme_dark {
     --dp-background-color: #{$dark-bg2};
     --dp-text-color: #{$dark-font-color};
-    --dp-hover-color: #484848;
-    --dp-hover-text-color: #ffffff;
-    --dp-hover-icon-color: #959595;
-    --dp-primary-color: #{#5cdd8b};
-    --dp-primary-text-color: #ffffff;
-    --dp-secondary-color: #494949;
+    --dp-hover-color: #{$zinc-800};
+    --dp-hover-text-color: #{$zinc-50};
+    --dp-hover-icon-color: #{$zinc-400};
+    --dp-primary-color: #{$zinc-50};
+    --dp-primary-text-color: #{$zinc-900};
+    --dp-secondary-color: #{$zinc-700};
     --dp-border-color: #{$dark-border-color};
-    --dp-menu-border-color: #2d2d2d;
-    --dp-border-color-hover: #{$dark-border-color};
-    --dp-disabled-color: #212121;
-    --dp-scroll-bar-background: #212121;
-    --dp-scroll-bar-color: #484848;
-    --dp-success-color: #{$primary};
-    --dp-success-color-disabled: #428f59;
-    --dp-icon-color: #959595;
-    --dp-danger-color: #e53935;
-    --dp-highlight-color: rgba(0, 92, 178, 0.2);
+    --dp-menu-border-color: #{$dark-border-color};
+    --dp-border-color-hover: #{$zinc-600};
+    --dp-disabled-color: #{$zinc-900};
+    --dp-disabled-color-text: #{$zinc-600};
+    --dp-scroll-bar-background: #{$zinc-900};
+    --dp-scroll-bar-color: #{$zinc-700};
+    --dp-success-color: #{$emerald-500};
+    --dp-success-color-disabled: #{$zinc-600};
+    --dp-icon-color: #{$zinc-400};
+    --dp-danger-color: #{$red-500};
+    --dp-highlight-color: rgba(250, 250, 250, 0.1);
 }
 
 .dp__input {
     border-radius: $border-radius;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dp__input:focus {
+    box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
+
+    .dark & {
+        box-shadow: 0 0 0 2px rgba($zinc-400, 0.2);
+    }
+}
+
+.dp__menu {
+    border-radius: $border-radius-lg;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.dp__action_button {
+    border-radius: $border-radius-sm;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.dp__cell_inner {
+    border-radius: $border-radius-sm;
 }
 
 // Fix: Full width of text input when using "inline textInput inlineWithInput" mode
@@ -35,5 +91,5 @@
 }
 
 .dp__main > div[aria-label="Datepicker menu"]:nth-child(2) {
-    margin-top: 20px;
+    margin-top: 8px;
 }

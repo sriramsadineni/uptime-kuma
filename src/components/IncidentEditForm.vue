@@ -2,7 +2,6 @@
     <div
         class="shadow-box alert mb-4 p-4 incident"
         role="alert"
-        :class="'bg-' + modelValue.style"
         data-testid="incident-edit"
     >
         <strong>{{ $t("Title") }}:</strong>

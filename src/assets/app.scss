@@ -1,33 +1,209 @@
 @import "vars.scss";
+@import "bootstrap-overrides";
 @import "multiselect.scss";
 @import "node_modules/bootstrap/scss/bootstrap";
 
+// =============================================================================
+// GLOBAL STYLES - shadcn/ui Inspired
+// =============================================================================
+
+// Font family
 #app {
-    font-family:
-        "Twemoji Country Flags",
-        BlinkMacSystemFont,
-        segoe ui,
-        Roboto,
-        helvetica neue,
-        Arial,
-        noto sans,
-        sans-serif,
-        apple color emoji,
-        segoe ui emoji,
-        segoe ui symbol,
-        noto color emoji;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
+        "Twemoji Country Flags";
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: $zinc-900;
+    line-height: 1.2;
+
+    .dark & {
+        color: $zinc-50;
+    }
 }
 
 h1 {
-    font-size: 32px;
+    font-size: 2.25rem; // 36px
+    font-weight: 700;
+    letter-spacing: -0.03em;
 }
 
 h2 {
-    font-size: 26px;
+    font-size: 1.875rem; // 30px
+    font-weight: 600;
+}
+
+h3 {
+    font-size: 1.5rem; // 24px
+}
+
+h4 {
+    font-size: 1.25rem; // 20px
+}
+
+h5 {
+    font-size: 1.125rem; // 18px
+}
+
+h6 {
+    font-size: 1rem; // 16px
+}
+
+// Paragraph and text
+p {
+    line-height: 1.625;
+    color: $zinc-700;
+
+    .dark & {
+        color: $zinc-300;
+    }
+}
+
+// Small text
+small, .small {
+    font-size: 0.75rem;
+    color: $zinc-500;
+}
+
+// Lead text
+.lead {
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: $zinc-600;
+
+    .dark & {
+        color: $zinc-400;
+    }
+}
+
+// Text utilities
+.text-muted {
+    color: $zinc-500 !important;
+}
+
+// Links
+a {
+    color: $zinc-900;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+
+    &:hover {
+        color: $zinc-700;
+    }
+
+    .dark & {
+        color: $zinc-300;
+
+        &:hover {
+            color: $zinc-100;
+        }
+    }
+}
+
+// Code
+code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.875em;
+    color: $violet-500;
+    background-color: $zinc-100;
+    padding: 0.125rem 0.375rem;
+    border-radius: $border-radius-sm;
+
+    .dark & {
+        background-color: $zinc-800;
+        color: $violet-500;
+    }
+}
+
+pre {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.875rem;
+    background-color: $zinc-900;
+    color: $zinc-100;
+    padding: 1rem;
+    border-radius: $border-radius;
+    overflow-x: auto;
+
+    code {
+        background-color: transparent;
+        padding: 0;
+        color: inherit;
+    }
+}
+
+// Keyboard
+kbd {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.75rem;
+    background-color: $zinc-100;
+    border: 1px solid $zinc-300;
+    border-radius: $border-radius-sm;
+    padding: 0.125rem 0.375rem;
+    color: $zinc-700;
+    box-shadow: 0 1px 0 $zinc-300;
+
+    .dark & {
+        background-color: $zinc-800;
+        border-color: $zinc-700;
+        color: $zinc-300;
+        box-shadow: 0 1px 0 $zinc-700;
+    }
+}
+
+// Mark/highlight
+mark, .mark {
+    background-color: $amber-200;
+    color: $zinc-900;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.125rem;
+}
+
+// Horizontal rule
+hr {
+    border: none;
+    border-top: 1px solid $zinc-200;
+    margin: 1.5rem 0;
+
+    .dark & {
+        border-top-color: $zinc-800;
+    }
+}
+
+// Blockquote
+blockquote {
+    border-left: 4px solid $zinc-200;
+    padding-left: 1rem;
+    margin-left: 0;
+    font-style: italic;
+    color: $zinc-600;
+
+    .dark & {
+        border-left-color: $zinc-700;
+        color: $zinc-400;
+    }
+}
+
+// Selection
+::selection {
+    background-color: $zinc-900;
+    color: white;
+
+    .dark & {
+        background-color: $zinc-100;
+        color: $zinc-900;
+    }
 }
 
 textarea.form-control {
-    border-radius: 19px;
+    border-radius: $border-radius;
 }
 
 ::-webkit-scrollbar {
@@ -53,9 +229,26 @@ textarea.form-control {
 }
 
 .list-group {
-    border-radius: 0.75rem;
+    border-radius: $border-radius-lg;
+    border: 1px solid $zinc-200;
+    overflow: hidden;
+
+    .list-group-item {
+        border-color: $zinc-200;
+        padding: 0.75rem 1rem;
+
+        &:first-child {
+            border-top: none;
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
 
     .dark & {
+        border-color: $dark-border-color;
+
         .list-group-item {
             background-color: $dark-bg;
             color: $dark-font-color;
@@ -66,108 +259,235 @@ textarea.form-control {
 
 // optgroup
 optgroup {
-    color: #b1b1b1;
+    color: $zinc-500;
+    font-weight: 600;
+
     option {
-        color: #212529;
+        color: $zinc-900;
+        font-weight: 400;
     }
 }
 
 .dark {
     optgroup {
-        color: #535864;
+        color: $zinc-500;
+
         option {
             color: $dark-font-color;
         }
     }
 }
 
-// Scrollbar
-::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 20px;
-}
+// Form controls (light theme enhancements)
+.form-control,
+.form-select {
+    border-color: $zinc-200;
+    border-radius: $border-radius;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
-.modal {
-    backdrop-filter: blur(3px);
-}
+    &:focus {
+        border-color: $zinc-400;
+        box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
+    }
 
-.modal-content {
-    border-radius: 1rem;
-    box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
-
-    .dark & {
-        box-shadow: 0 15px 70px rgb(0 0 0);
-        background-color: $dark-bg;
+    &::placeholder {
+        color: $zinc-400;
     }
 }
 
+.form-label {
+    font-weight: 500;
+    color: $zinc-700;
+    margin-bottom: 0.375rem;
+}
+
+.form-text {
+    color: $zinc-500;
+    font-size: 0.875rem;
+}
+
+.input-group-text {
+    background-color: $zinc-100;
+    border-color: $zinc-200;
+    color: $zinc-600;
+}
+
+// Scrollbar
+::-webkit-scrollbar-thumb {
+    background: $zinc-300;
+    border-radius: 10px;
+
+    &:hover {
+        background: $zinc-400;
+    }
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal {
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    border-radius: $border-radius-lg;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border: 1px solid $zinc-200;
+    background-color: white;
+
+    .dark & {
+        box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+        background-color: $dark-bg;
+        border-color: $dark-border-color;
+    }
+}
+
+.modal-header {
+    border-bottom: 1px solid $zinc-200;
+    padding: 1rem 1.25rem;
+
+    .modal-title {
+        font-weight: 600;
+    }
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.modal-footer {
+    border-top: 1px solid $zinc-200;
+    padding: 1rem 1.25rem;
+}
+
 .VuePagination__count {
-    font-size: 13px;
+    font-size: 0.875rem;
     text-align: center;
+    color: $zinc-500;
+
+    .dark & {
+        color: $zinc-400;
+    }
 }
 
 .shadow-box {
     //overflow: hidden;   // Forget why add this, but multiple select hide by this
-    box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    border-radius: 10px;
-
+    border-radius: $border-radius-lg;
+    border: 1px solid $border-color;
+    background-color: var(--bs-body-bg);
     &.big-padding {
         padding: 20px;
+        background-color: var(--bs-body-bg);
     }
 }
 
 .btn {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
 }
 
 .btn-sm {
-    border-radius: 25px;
+    border-radius: $border-radius-sm;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    border-radius: $border-radius;
+    padding: 0.625rem 1.25rem;
 }
 
 .btn-primary {
-    color: white;
+    background-color: $zinc-900;
+    border-color: $zinc-900;
+    color: $zinc-50;
 
     &:hover,
     &:active,
     &:focus,
     &.active {
-        color: white;
-        background-color: $highlight;
-        border-color: $highlight;
+        background-color: $zinc-800;
+        border-color: $zinc-800;
+        color: $zinc-50;
     }
 
-    .dark & {
-        color: $dark-font-color2;
+    &:focus {
+        box-shadow: 0 0 0 2px rgba($zinc-950, 0.2);
+    }
+}
+
+.btn-secondary {
+    background-color: $zinc-100;
+    border-color: $zinc-200;
+    color: $zinc-900;
+
+    &:hover,
+    &:active,
+    &:focus {
+        background-color: $zinc-200;
+        border-color: $zinc-300;
+        color: $zinc-900;
     }
 }
 
 .btn-normal {
-    $bg-color: #f5f5f5;
-
-    background-color: $bg-color;
-    border-color: $bg-color;
+    background-color: $zinc-100;
+    border-color: $zinc-100;
+    color: $zinc-700;
 
     &:hover {
-        $hover-color: darken($bg-color, 3%);
-        background-color: $hover-color;
-        border-color: $hover-color;
+        background-color: $zinc-200;
+        border-color: $zinc-200;
+    }
+}
+
+.btn-success {
+    background-color: $emerald-500;
+    border-color: $emerald-500;
+    color: white;
+
+    &:hover,
+    &:active,
+    &:focus {
+        background-color: $emerald-600;
+        border-color: $emerald-600;
     }
 }
 
 .btn-warning {
-    color: white;
+    background-color: $amber-500;
+    border-color: $amber-500;
+    color: $zinc-950;
 
     &:hover,
     &:active,
     &:focus,
     &.active {
-        color: white;
+        color: $zinc-950;
+    }
+}
+
+.btn-danger {
+    background-color: $red-500;
+    border-color: $red-500;
+    color: white;
+
+    &:hover,
+    &:active,
+    &:focus {
+        background-color: $red-600;
+        border-color: $red-600;
     }
 }
 
 .btn-info {
+    background-color: $blue-500;
+    border-color: $blue-500;
     color: white;
 
     &:hover,
@@ -175,30 +495,598 @@ optgroup {
     &:focus,
     &.active {
         color: white;
+        background-color: $blue-600;
+        border-color: $blue-600;
     }
 }
 
 .btn-dark {
-    background-color: #161b22;
+    background-color: $zinc-900;
+    border-color: $zinc-900;
+    color: $zinc-50;
+
+    &:hover {
+        background-color: $zinc-800;
+        border-color: $zinc-800;
+    }
+}
+
+.btn-outline-primary {
+    color: $zinc-900;
+    border-color: $zinc-200;
+
+    &:hover {
+        background-color: $zinc-100;
+        border-color: $zinc-300;
+        color: $zinc-900;
+    }
+}
+
+.btn-outline-secondary {
+    color: $zinc-700;
+    border-color: $zinc-200;
+
+    &:hover {
+        background-color: $zinc-100;
+        border-color: $zinc-300;
+        color: $zinc-900;
+    }
 }
 
 .btn-outline-normal {
-    padding: 4px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 25px;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid $zinc-200;
+    border-radius: $border-radius;
     background-color: transparent;
+    color: $zinc-700;
+    font-weight: 500;
+
+    &:hover {
+        background-color: $zinc-100;
+        border-color: $zinc-300;
+    }
 
     .dark & {
         color: $dark-font-color;
-        border: 1px solid $dark-font-color2;
+        border-color: $zinc-700;
+
+        &:hover {
+            background-color: $zinc-800;
+        }
     }
 
     &.active {
-        background-color: $highlight-white;
+        background-color: $zinc-100;
+        border-color: $zinc-300;
 
         .dark & {
-            background-color: $dark-font-color2;
+            background-color: $zinc-800;
+            border-color: $zinc-600;
         }
+    }
+}
+
+// Ghost button (shadcn style)
+.btn-ghost {
+    background-color: transparent;
+    border: none;
+    color: $zinc-700;
+    font-weight: 500;
+
+    &:hover {
+        background-color: $zinc-100;
+        color: $zinc-900;
+    }
+
+    .dark & {
+        color: $zinc-400;
+
+        &:hover {
+            background-color: $zinc-800;
+            color: $zinc-100;
+        }
+    }
+}
+
+// Link button (shadcn style)
+.btn-link {
+    background-color: transparent;
+    border: none;
+    color: $zinc-900;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0;
+
+    &:hover {
+        text-decoration: underline;
+        color: $zinc-700;
+    }
+
+    .dark & {
+        color: $zinc-100;
+
+        &:hover {
+            color: $zinc-300;
+        }
+    }
+}
+
+// Destructive button (shadcn style)
+.btn-destructive {
+    background-color: $red-500;
+    border-color: $red-500;
+    color: white;
+
+    &:hover {
+        background-color: $red-600;
+        border-color: $red-600;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 2px rgba($red-500, 0.3);
+    }
+}
+
+// =============================================================================
+// BADGES (shadcn/ui style)
+// =============================================================================
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25em 0.5em;
+    border-radius: $border-radius-sm;
+    text-transform: none;
+    letter-spacing: 0;
+
+    &.bg-primary {
+        background-color: $zinc-900 !important;
+        color: $zinc-50;
+
+        .dark & {
+            background-color: $zinc-100 !important;
+            color: $zinc-900;
+        }
+    }
+
+    &.bg-secondary {
+        background-color: $zinc-100 !important;
+        color: $zinc-900;
+
+        .dark & {
+            background-color: $zinc-800 !important;
+            color: $zinc-100;
+        }
+    }
+
+    &.bg-success {
+        background-color: rgba($emerald-500, 0.15) !important;
+        color: darken($emerald-500, 10%);
+
+        .dark & {
+            background-color: rgba($emerald-500, 0.2) !important;
+            color: $emerald-500;
+        }
+    }
+
+    &.bg-danger {
+        background-color: rgba($red-500, 0.15) !important;
+        color: darken($red-500, 10%);
+
+        .dark & {
+            background-color: rgba($red-500, 0.2) !important;
+            color: $red-500;
+        }
+    }
+
+    &.bg-warning {
+        background-color: rgba($amber-500, 0.15) !important;
+        color: darken($amber-500, 15%);
+
+        .dark & {
+            background-color: rgba($amber-500, 0.2) !important;
+            color: $amber-500;
+        }
+    }
+
+    &.bg-info {
+        background-color: rgba($blue-500, 0.15) !important;
+        color: darken($blue-500, 10%);
+
+        .dark & {
+            background-color: rgba($blue-500, 0.2) !important;
+            color: $blue-500;
+        }
+    }
+}
+
+// Badge outline variant
+.badge-outline {
+    background-color: transparent;
+    border: 1px solid $zinc-200;
+    color: $zinc-700;
+
+    .dark & {
+        border-color: $zinc-700;
+        color: $zinc-300;
+    }
+}
+
+// =============================================================================
+// TABLES (shadcn/ui style)
+// =============================================================================
+.table {
+    font-size: 0.875rem;
+    border-color: $zinc-200;
+
+    thead {
+        th {
+            font-weight: 500;
+            color: $zinc-500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 0.75rem;
+            border-bottom: 1px solid $zinc-200;
+            background-color: transparent;
+        }
+    }
+
+    tbody {
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid $zinc-100;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+
+    &.table-hover tbody tr:hover {
+        background-color: $zinc-50;
+    }
+
+    &.table-striped tbody tr:nth-of-type(odd) {
+        background-color: $zinc-50;
+    }
+}
+
+// =============================================================================
+// TABS & NAV (shadcn/ui style)
+// =============================================================================
+.nav-tabs {
+    border-bottom: 1px solid $zinc-200;
+
+    .nav-link {
+        font-weight: 500;
+        color: $zinc-500;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.15s ease-in-out;
+
+        &:hover {
+            color: $zinc-900;
+            border-bottom-color: $zinc-300;
+        }
+
+        &.active {
+            color: $zinc-900;
+            border-bottom-color: $zinc-900;
+            background-color: transparent;
+        }
+    }
+
+    .dark & {
+        border-bottom-color: $zinc-800;
+
+        .nav-link {
+            color: $zinc-500;
+
+            &:hover {
+                color: $zinc-100;
+                border-bottom-color: $zinc-700;
+            }
+
+            &.active {
+                color: $zinc-100;
+                border-bottom-color: $zinc-100;
+            }
+        }
+    }
+}
+
+.nav-pills {
+    .nav-link {
+        font-weight: 500;
+        color: $zinc-600;
+        padding: 0.5rem 1rem;
+        border-radius: $border-radius;
+        transition: all 0.15s ease-in-out;
+
+        &:hover {
+            background-color: $zinc-100;
+            color: $zinc-900;
+        }
+
+        &.active {
+            background-color: $zinc-900;
+            color: white;
+        }
+    }
+
+    .dark & {
+        .nav-link {
+            color: $zinc-400;
+
+            &:hover {
+                background-color: $zinc-800;
+                color: $zinc-100;
+            }
+
+            &.active {
+                background-color: $zinc-100;
+                color: $zinc-900;
+            }
+        }
+    }
+}
+
+// =============================================================================
+// TOOLTIPS (shadcn/ui style)
+// =============================================================================
+.tooltip {
+    .tooltip-inner {
+        background-color: $zinc-900;
+        color: $zinc-50;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: $border-radius-sm;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .tooltip-arrow::before {
+        border-top-color: $zinc-900;
+    }
+
+    &.bs-tooltip-bottom .tooltip-arrow::before {
+        border-bottom-color: $zinc-900;
+    }
+
+    &.bs-tooltip-start .tooltip-arrow::before {
+        border-left-color: $zinc-900;
+    }
+
+    &.bs-tooltip-end .tooltip-arrow::before {
+        border-right-color: $zinc-900;
+    }
+}
+
+// =============================================================================
+// PROGRESS BARS (shadcn/ui style)
+// =============================================================================
+.progress {
+    height: 0.5rem;
+    background-color: $zinc-200;
+    border-radius: $border-radius-pill;
+    overflow: hidden;
+
+    .progress-bar {
+        background-color: $zinc-900;
+        transition: width 0.3s ease-in-out;
+
+        &.bg-success {
+            background-color: $emerald-500 !important;
+        }
+
+        &.bg-danger {
+            background-color: $red-500 !important;
+        }
+
+        &.bg-warning {
+            background-color: $amber-500 !important;
+        }
+
+        &.bg-info {
+            background-color: $blue-500 !important;
+        }
+    }
+
+    .dark & {
+        background-color: $zinc-800;
+
+        .progress-bar {
+            background-color: $zinc-100;
+        }
+    }
+}
+
+// =============================================================================
+// ACCORDION (shadcn/ui style)
+// =============================================================================
+.accordion {
+    border: 1px solid $zinc-200;
+    border-radius: $border-radius;
+    overflow: hidden;
+
+    .accordion-item {
+        border: none;
+        border-bottom: 1px solid $zinc-200;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .accordion-button {
+        font-weight: 500;
+        color: $zinc-900;
+        background-color: white;
+        padding: 1rem;
+        border: none;
+        box-shadow: none;
+
+        &:not(.collapsed) {
+            background-color: $zinc-50;
+            color: $zinc-900;
+        }
+
+        &:focus {
+            box-shadow: none;
+        }
+
+        &::after {
+            transition: transform 0.2s ease-in-out;
+        }
+    }
+
+    .accordion-body {
+        padding: 1rem;
+    }
+
+    .dark & {
+        border-color: $zinc-800;
+
+        .accordion-item {
+            border-bottom-color: $zinc-800;
+        }
+
+        .accordion-button {
+            background-color: $zinc-900;
+            color: $zinc-100;
+
+            &:not(.collapsed) {
+                background-color: $zinc-800;
+            }
+        }
+
+        .accordion-body {
+            background-color: $zinc-900;
+        }
+    }
+}
+
+// =============================================================================
+// SPINNER (shadcn/ui style)
+// =============================================================================
+.spinner-border,
+.spinner-grow {
+    color: $zinc-900;
+
+    .dark & {
+        color: $zinc-100;
+    }
+}
+
+// Loading state button
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+
+    .spinner-border {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+    }
+}
+
+// =============================================================================
+// AVATAR (shadcn/ui style utility)
+// =============================================================================
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: $zinc-100;
+    color: $zinc-600;
+    font-weight: 500;
+    font-size: 0.875rem;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &.avatar-sm {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+    }
+
+    &.avatar-lg {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+    }
+
+    .dark & {
+        background-color: $zinc-800;
+        color: $zinc-400;
+    }
+}
+
+// =============================================================================
+// SEPARATOR (shadcn/ui style utility)
+// =============================================================================
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: $zinc-500;
+    font-size: 0.75rem;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid $zinc-200;
+    }
+
+    &::before {
+        margin-right: 0.75rem;
+    }
+
+    &::after {
+        margin-left: 0.75rem;
+    }
+
+    .dark & {
+        color: $zinc-400;
+
+        &::before,
+        &::after {
+            border-bottom-color: $zinc-800;
+        }
+    }
+}
+
+// =============================================================================
+// SKELETON LOADER (shadcn/ui style utility)
+// =============================================================================
+.skeleton {
+    background: linear-gradient(90deg, $zinc-200 25%, $zinc-100 50%, $zinc-200 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite ease-in-out;
+    border-radius: $border-radius-sm;
+
+    .dark & {
+        background: linear-gradient(90deg, $zinc-800 25%, $zinc-700 50%, $zinc-800 75%);
+    }
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
     }
 }
 
@@ -249,24 +1137,50 @@ optgroup {
     }
 }
 
-// Dark Theme override here
+// =============================================================================
+// Dark Theme Override (shadcn/zinc dark mode)
+// =============================================================================
 .dark {
-    background-color: #090c10;
+    background-color: $dark-bg2;
     color: $dark-font-color;
+
+    // CSS Custom Properties for dark mode
+    --background: #{$zinc-950};
+    --foreground: #{$zinc-50};
+    --card: #{$zinc-900};
+    --card-foreground: #{$zinc-50};
+    --popover: #{$zinc-900};
+    --popover-foreground: #{$zinc-50};
+    --primary: #{$zinc-50};
+    --primary-foreground: #{$zinc-900};
+    --secondary: #{$zinc-800};
+    --secondary-foreground: #{$zinc-50};
+    --muted: #{$zinc-800};
+    --muted-foreground: #{$zinc-400};
+    --accent: #{$zinc-800};
+    --accent-foreground: #{$zinc-50};
+    --destructive: #{$red-500};
+    --destructive-foreground: #{$zinc-50};
+    --border: #{$zinc-800};
+    --input: #{$zinc-800};
+    --ring: #{$zinc-300};
 
     mark,
     .mark {
-        background-color: #b6ad86;
+        background-color: $amber-500;
+        color: $zinc-950;
     }
 
     &::-webkit-scrollbar-thumb,
     ::-webkit-scrollbar-thumb {
         background: $dark-border-color;
+        border-radius: 10px;
     }
 
     .shadow-box {
         &:not(.alert) {
             background-color: $dark-bg;
+            border: 1px solid $dark-border-color;
         }
     }
 
@@ -276,17 +1190,18 @@ optgroup {
     }
 
     .input-group-text {
-        background-color: #282f39;
+        background-color: $zinc-800;
         border-color: $dark-border-color;
         color: $dark-font-color;
     }
 
     .form-check-input:checked {
-        border-color: $primary; // Re-apply bootstrap border
+        background-color: $primary;
+        border-color: $primary;
     }
 
     .form-switch .form-check-input {
-        background-color: #232f3b;
+        background-color: $zinc-700;
     }
 
     a:not(.btn),
@@ -308,8 +1223,15 @@ optgroup {
     .form-control:focus,
     .form-select,
     .form-select:focus {
-        color: $dark-font-color;
+        color: $dark-font-color2;
         background-color: $dark-bg2;
+        border-color: $dark-border-color;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: $zinc-600;
+        box-shadow: 0 0 0 2px rgba($zinc-400, 0.2);
     }
 
     .form-select:disabled {
@@ -324,50 +1246,82 @@ optgroup {
 
     .form-control:disabled,
     .form-control[readonly] {
-        background-color: #232f3b;
+        background-color: $zinc-800;
         opacity: 1;
     }
 
     .table-hover > tbody > tr:hover > * {
-        --bs-table-accent-bg: #070a10;
+        --bs-table-accent-bg: #{$zinc-800};
         color: $dark-font-color;
     }
 
     .nav-pills .nav-link.active,
     .nav-pills .show > .nav-link {
-        color: $dark-font-color2;
+        background-color: $zinc-50;
+        color: $zinc-900;
     }
 
     .bg-primary {
-        color: $dark-font-color2;
+        background-color: $zinc-50 !important;
+        color: $zinc-900;
+    }
+
+    .btn-primary {
+        background-color: $zinc-50;
+        border-color: $zinc-50;
+        color: $zinc-900;
+
+        &:hover,
+        &:active,
+        &:focus {
+            background-color: $zinc-200;
+            border-color: $zinc-200;
+            color: $zinc-900;
+        }
     }
 
     .btn-secondary {
-        color: white;
+        background-color: $zinc-800;
+        border-color: $zinc-800;
+        color: $zinc-50;
+
+        &:hover {
+            background-color: $zinc-700;
+            border-color: $zinc-700;
+        }
+    }
+
+    .btn-outline-primary {
+        color: $zinc-50;
+        border-color: $zinc-700;
+
+        &:hover {
+            background-color: $zinc-800;
+            border-color: $zinc-600;
+        }
     }
 
     .btn-normal {
-        $bg-color: $dark-header-bg;
+        $bg-color: $zinc-800;
 
         color: $dark-font-color;
         background-color: $bg-color;
         border-color: $bg-color;
 
         &:hover {
-            $hover-color: darken($bg-color, 3%);
-            background-color: $hover-color;
-            border-color: $hover-color;
+            background-color: $zinc-700;
+            border-color: $zinc-700;
         }
     }
 
     .btn-warning {
-        color: $dark-font-color2;
+        color: $zinc-950;
 
         &:hover,
         &:active,
         &:focus,
         &.active {
-            color: $dark-font-color2;
+            color: $zinc-950;
         }
     }
 
@@ -381,34 +1335,88 @@ optgroup {
     }
 
     .modal-header {
-        border-color: $dark-bg;
+        border-color: $dark-border-color;
     }
 
     .modal-footer {
-        border-color: $dark-bg;
+        border-color: $dark-border-color;
+    }
+
+    .modal-content {
+        background-color: $dark-bg;
+        border: 1px solid $dark-border-color;
     }
 
     // Pagination
     .page-item.disabled .page-link {
         background-color: $dark-bg;
         border-color: $dark-border-color;
+        color: $zinc-600;
     }
 
     .page-link {
         background-color: $dark-bg;
         border-color: $dark-border-color;
         color: $dark-font-color;
+
+        &:hover {
+            background-color: $zinc-800;
+            border-color: $zinc-700;
+        }
+    }
+
+    .page-item.active .page-link {
+        background-color: $zinc-50;
+        border-color: $zinc-50;
+        color: $zinc-900;
     }
 
     .monitor-list {
         .item {
             &:hover {
-                background-color: $dark-bg2;
+                background-color: $zinc-800;
             }
 
             &.active {
-                background-color: $dark-bg2;
+                background-color: $zinc-800;
             }
+        }
+    }
+
+    // Cards and containers
+    .card {
+        background-color: $dark-bg;
+        border-color: $dark-border-color;
+    }
+
+    // Dropdowns
+    .dropdown-menu {
+        background-color: $dark-bg;
+        border-color: $dark-border-color;
+    }
+
+    .dropdown-item {
+        color: $dark-font-color;
+
+        &:hover,
+        &:focus {
+            background-color: $zinc-800;
+            color: $zinc-50;
+        }
+    }
+
+    .dropdown-divider {
+        border-color: $dark-border-color;
+    }
+
+    // Tables
+    .table {
+        color: $dark-font-color;
+        border-color: $dark-border-color;
+
+        th,
+        td {
+            border-color: $dark-border-color;
         }
     }
 
@@ -434,6 +1442,21 @@ optgroup {
         &.bg-light {
             color: $dark-font-color2;
         }
+    }
+
+    // Badges
+    .badge {
+        &.bg-secondary {
+            background-color: $zinc-700 !important;
+            color: $zinc-100;
+        }
+    }
+
+    // Code blocks
+    .code-editor,
+    .css-editor {
+        background: $dark-bg2;
+        border-color: $dark-border-color;
     }
 }
 
@@ -498,9 +1521,10 @@ optgroup {
     .item {
         display: block;
         text-decoration: none;
-        padding: 13px 15px 10px 15px;
-        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border-radius: $border-radius;
         transition: all ease-in-out 0.15s;
+        margin-bottom: 0.25rem;
 
         &.disabled {
             opacity: 0.3;
@@ -512,12 +1536,14 @@ optgroup {
         }
 
         &:hover {
-            background-color: $highlight-white;
+            background-color: $zinc-100;
         }
 
         &.active {
-            background-color: #cdf8f4;
+            background-color: $zinc-100;
+            border: 1px solid $zinc-200;
         }
+
         .tags {
             // Removes margin to line up tags list with uptime percentage
             margin-left: -0.25rem;
@@ -526,59 +1552,61 @@ optgroup {
 }
 
 .alert-success {
-    color: #122f21;
-    background-color: $primary;
-    border-color: $primary;
+    color: #065f46;
+    background-color: #d1fae5;
+    border-color: #a7f3d0;
 }
 
 .alert-info {
-    color: #055160;
-    background-color: #cff4fc;
-    border-color: #cff4fc;
+    color: #1e40af;
+    background-color: #dbeafe;
+    border-color: #bfdbfe;
+}
+
+.alert-warning {
+    color: #92400e;
+    background-color: #fef3c7;
+    border-color: #fde68a;
 }
 
 .alert-danger {
-    color: #842029;
-    background-color: #f8d7da;
-    border-color: #f8d7da;
-}
-
-.btn-success {
-    color: #fff;
-    background-color: #4caf50;
-    border-color: #4caf50;
+    color: #991b1b;
+    background-color: #fee2e2;
+    border-color: #fecaca;
 }
 
 [contenteditable="true"] {
     transition: all $easing-in 0.2s;
-    background-color: rgba(239, 239, 239, 0.7);
-    border-radius: 8px;
+    background-color: $zinc-100;
+    border-radius: $border-radius-sm;
+    padding: 0.25rem 0.5rem;
 
     &.no-bg {
         background-color: transparent !important;
     }
 
     &:focus {
-        outline: 0 solid #eee;
-        background-color: rgba(245, 245, 245, 0.9);
+        outline: none;
+        background-color: $zinc-50;
+        box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
     }
 
     &:hover {
-        background-color: rgba(239, 239, 239, 0.8);
+        background-color: $zinc-200;
     }
 
     .dark & {
-        background-color: rgba(239, 239, 239, 0.2);
-    }
+        background-color: $zinc-800;
 
-    /*
-    &::after {
-        margin-left: 5px;
-        content: "🖊️";
-        font-size: 13px;
-        color: #eee;
+        &:focus {
+            background-color: $zinc-900;
+            box-shadow: 0 0 0 2px rgba($zinc-400, 0.2);
+        }
+
+        &:hover {
+            background-color: $zinc-700;
+        }
     }
-    */
 }
 
 .action {
@@ -595,7 +1623,11 @@ optgroup {
 }
 
 .spinner {
-    color: $primary;
+    color: $zinc-900;
+
+    .dark & {
+        color: $zinc-100;
+    }
 }
 
 .prism-editor__textarea {
@@ -608,22 +1640,37 @@ optgroup {
     }
 }
 
-h5.settings-subheading::after {
-    content: "";
-    display: block;
-    width: 50%;
-    padding-top: 8px;
-    border-bottom: 1px solid $dark-border-color;
+h5.settings-subheading {
+    font-weight: 600;
+    color: $zinc-900;
+
+    .dark & {
+        color: $zinc-100;
+    }
+
+    &::after {
+        content: "";
+        display: block;
+        width: 50%;
+        padding-top: 8px;
+        border-bottom: 1px solid $zinc-200;
+
+        .dark & {
+            border-color: $dark-border-color;
+        }
+    }
 }
 
 /* required class */
 .code-editor,
 .css-editor {
     /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
-
-    border-radius: 1rem;
-    padding: 10px 5px;
-    border: 1px solid #ced4da;
+    background-color: $zinc-50;
+    border-radius: $border-radius;
+    padding: 0.75rem;
+    border: 1px solid $zinc-200;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.875rem;
 
     .dark & {
         background: $dark-bg2;
@@ -646,12 +1693,15 @@ $shadow-box-padding: 20px;
     margin-left: -$shadow-box-padding;
     margin-right: -$shadow-box-padding;
     z-index: 10;
-    background-color: rgba(white, 0.2);
-    backdrop-filter: blur(2px);
-    border-radius: 0 0 10px 10px;
+    background-color: rgba(white, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: 0 0 $border-radius-lg $border-radius-lg;
+    border-top: 1px solid $zinc-200;
+    padding: 0.75rem 1.25rem;
 
     .dark & {
         background-color: rgba($dark-header-bg, 0.9);
+        border-top-color: $dark-border-color;
     }
 }
 

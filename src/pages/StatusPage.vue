@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loadedTheme" class="container mt-3">
+    <div v-if="loadedTheme" class="col-12 col-lg-8 mx-auto mt-3">
         <!-- Sidebar for edit mode -->
         <div v-if="enableEditMode" class="sidebar" data-testid="edit-sidebar">
             <div class="sidebar-body">
@@ -237,8 +237,18 @@
 
         <!-- Main Status Page -->
         <div :class="{ edit: enableEditMode }" class="main">
-            <!-- Logo & Title -->
-            <h1 class="mb-4 title-flex">
+            <!-- Header -->
+            <PublicHeader
+                v-if="!enableEditMode"
+                :slug="slug"
+                :title="config.title"
+                :logo-url="logoURL"
+                active-tab="status"
+                contact-url="mailto:support@example.com"
+            />
+
+            <!-- Edit Mode: Logo & Title -->
+            <h1 v-if="enableEditMode" class="mb-4 title-flex">
                 <!-- Logo -->
                 <span class="logo-wrapper" @click="showImageCropUploadMethod">
                     <button
@@ -254,7 +264,6 @@
                 </span>
 
                 <!-- Uploader -->
-                <!--    url="/api/status-page/upload-logo" -->
                 <ImageCropUpload
                     v-model="showImageCropUpload"
                     field="img"
@@ -270,6 +279,33 @@
                 <!-- Title -->
                 <Editable v-model="config.title" tag="span" :contenteditable="editMode" :noNL="true" />
             </h1>
+
+            <!-- Hidden nav for edit mode (keeps the old structure) -->
+            <nav v-if="false" class="status-nav mb-4">
+                <a
+                    :href="statusPageBaseUrl"
+                    class="status-nav-link"
+                    :class="{ active: activeTab === 'status' }"
+                >
+                    {{ $t("Status") }}
+                </a>
+                <a
+                    v-if="maintenanceList.length > 0"
+                    :href="maintenancePageUrl"
+                    class="status-nav-link"
+                    :class="{ active: activeTab === 'maintenance' }"
+                >
+                    {{ $t("Maintenance") }}
+                    <span class="nav-badge">{{ maintenanceList.length }}</span>
+                </a>
+                <a
+                    :href="incidentsPageUrl"
+                    class="status-nav-link"
+                    :class="{ active: activeTab === 'incidents' }"
+                >
+                    {{ $t("Previous Incidents") }}
+                </a>
+            </nav>
 
             <!-- Admin functions -->
             <div v-if="hasToken" class="mb-2">
@@ -322,53 +358,45 @@
                 <!-- Display mode for this incident -->
                 <div
                     v-else
-                    class="shadow-box alert mb-4 p-4 incident"
+                    class="active-incident mb-4"
                     role="alert"
-                    :class="'bg-' + activeIncident.style"
                     data-testid="incident"
                 >
-                    <h4 class="alert-heading" data-testid="incident-title">{{ activeIncident.title }}</h4>
+                    <div class="incident-header">
+                        <span class="incident-dot" :class="'incident-dot-' + activeIncident.style"></span>
+                        <span class="incident-status-label">{{ $t("Ongoing Incident") }}</span>
+                    </div>
+                    <h4 class="incident-title" data-testid="incident-title">{{ activeIncident.title }}</h4>
                     <!-- eslint-disable vue/no-v-html -->
                     <div
-                        class="content"
+                        class="incident-content"
                         data-testid="incident-content"
                         v-html="getIncidentHTML(activeIncident.content)"
                     ></div>
                     <!-- eslint-enable vue/no-v-html -->
 
                     <!-- Incident Date -->
-                    <div class="date mt-3">
-                        {{
-                            $t("dateCreatedAtFromNow", {
-                                date: $root.datetime(activeIncident.createdDate),
-                                fromNow: dateFromNow(activeIncident.createdDate),
-                            })
-                        }}
-                        <br />
-                        <span v-if="activeIncident.lastUpdatedDate">
-                            {{
-                                $t("lastUpdatedAtFromNow", {
-                                    date: $root.datetime(activeIncident.lastUpdatedDate),
-                                    fromNow: dateFromNow(activeIncident.lastUpdatedDate),
-                                })
-                            }}
+                    <div class="incident-meta">
+                        <span>{{ dateFromNow(activeIncident.createdDate) }}</span>
+                        <span v-if="activeIncident.lastUpdatedDate" class="text-muted">
+                            · Updated {{ dateFromNow(activeIncident.lastUpdatedDate) }}
                         </span>
                     </div>
 
-                    <div v-if="editMode" class="mt-3">
-                        <button class="btn btn-light me-2" @click="resolveIncident(activeIncident)">
-                            <font-awesome-icon icon="check" />
+                    <div v-if="editMode" class="incident-actions">
+                        <button class="btn btn-sm btn-outline-success" @click="resolveIncident(activeIncident)">
+                            <font-awesome-icon icon="check" class="me-1" />
                             {{ $t("Resolve") }}
                         </button>
-                        <button class="btn btn-light me-2" @click="editIncident(activeIncident)">
-                            <font-awesome-icon icon="edit" />
+                        <button class="btn btn-sm btn-outline-secondary" @click="editIncident(activeIncident)">
+                            <font-awesome-icon icon="edit" class="me-1" />
                             {{ $t("Edit") }}
                         </button>
                         <button
-                            class="btn btn-light me-2"
+                            class="btn btn-sm btn-outline-danger"
                             @click="$refs.incidentManageModal.showDelete(activeIncident)"
                         >
-                            <font-awesome-icon icon="unlink" />
+                            <font-awesome-icon icon="trash" class="me-1" />
                             {{ $t("Delete") }}
                         </button>
                     </div>
@@ -376,51 +404,59 @@
             </template>
 
             <!-- Overall Status -->
-            <div class="shadow-box list p-4 overall-status mb-4">
-                <div v-if="Object.keys($root.publicMonitorList).length === 0 && loadedData">
-                    <font-awesome-icon icon="question-circle" class="ok" />
-                    {{ $t("No Services") }}
+            <div class="overall-status">
+                <div v-if="Object.keys($root.publicMonitorList).length === 0 && loadedData" class="status-badge text-secondary">
+                    <font-awesome-icon icon="question-circle" class="status-icon" />
+                    <span>{{ $t("No Services") }}</span>
                 </div>
 
                 <template v-else>
-                    <div v-if="allUp">
-                        <font-awesome-icon icon="check-circle" class="ok" />
-                        {{ $t("All Systems Operational") }}
+                    <div v-if="allUp" class="status-badge text-success">
+                        <font-awesome-icon icon="check-circle" class="status-icon" />
+                        <span>{{ $t("All Systems Operational") }}</span>
                     </div>
 
-                    <div v-else-if="partialDown">
-                        <font-awesome-icon icon="exclamation-circle" class="warning" />
-                        {{ $t("Partially Degraded Service") }}
+                    <div v-else-if="partialDown" class="status-badge text-warning">
+                        <font-awesome-icon icon="exclamation-circle" class="status-icon" />
+                        <span>{{ $t("Partially Degraded Service") }}</span>
                     </div>
 
-                    <div v-else-if="allDown">
-                        <font-awesome-icon icon="times-circle" class="danger" />
-                        {{ $t("Degraded Service") }}
+                    <div v-else-if="allDown" class="status-badge text-danger">
+                        <font-awesome-icon icon="times-circle" class="status-icon" />
+                        <span>{{ $t("Degraded Service") }}</span>
                     </div>
 
-                    <div v-else-if="isMaintenance">
-                        <font-awesome-icon icon="wrench" class="status-maintenance" />
-                        {{ $t("maintenanceStatus-under-maintenance") }}
+                    <div v-else-if="isMaintenance" class="status-badge text-info">
+                        <font-awesome-icon icon="wrench" class="status-icon" />
+                        <span>{{ $t("maintenanceStatus-under-maintenance") }}</span>
                     </div>
 
-                    <div v-else>
-                        <font-awesome-icon icon="question-circle" style="color: #efefef" />
+                    <div v-else class="status-badge text-muted">
+                        <font-awesome-icon icon="question-circle" class="status-icon" />
                     </div>
                 </template>
             </div>
 
             <!-- Maintenance -->
             <template v-if="maintenanceList.length > 0">
-                <div
-                    v-for="maintenance in maintenanceList"
-                    :key="maintenance.id"
-                    class="shadow-box alert mb-4 p-3 bg-maintenance mt-4 position-relative"
-                    role="alert"
-                >
-                    <h4 class="alert-heading">{{ maintenance.title }}</h4>
-                    <!-- eslint-disable-next-line vue/no-v-html-->
-                    <div class="content" v-html="maintenanceHTML(maintenance.description)"></div>
-                    <MaintenanceTime :maintenance="maintenance" />
+                <div id="maintenance" class="maintenance-section mb-4">
+                    <div
+                        v-for="maintenance in maintenanceList"
+                        :key="maintenance.id"
+                        class="maintenance-card"
+                    >
+                        <span class="maintenance-icon">
+                            <font-awesome-icon icon="wrench" />
+                        </span>
+                        <div class="maintenance-body">
+                            <div class="maintenance-header">
+                                <span class="maintenance-title">{{ maintenance.title }}</span>
+                            </div>
+                            <!-- eslint-disable-next-line vue/no-v-html -->
+                            <div v-if="maintenance.description" class="maintenance-desc" v-html="maintenanceHTML(maintenance.description)"></div>
+                            <div class="maintenance-time"><MaintenanceTime :maintenance="maintenance" /></div>
+                        </div>
+                    </div>
                 </div>
             </template>
 
@@ -490,6 +526,7 @@
 
                 <PublicGroupList
                     :edit-mode="enableEditMode"
+                    :slug="slug"
                     :show-tags="config.showTags"
                     :show-certificate-expiry="config.showCertificateExpiry"
                     :show-only-last-heartbeat="config.showOnlyLastHeartbeat"
@@ -497,21 +534,24 @@
             </div>
 
             <!-- Past Incidents -->
-            <div v-if="pastIncidentCount > 0" class="past-incidents-section mb-4">
-                <h2 class="past-incidents-title mb-3">
-                    {{ $t("Past Incidents") }}
-                </h2>
+            <div v-if="pastIncidentCount > 0" class="past-incidents-section mt-5 pt-4">
+                <div class="section-header">
+                    <h2 class="section-title">{{ $t("Past Incidents") }}</h2>
+                    <a :href="incidentsPageUrl" class="section-link">
+                        {{ $t("View All") }} →
+                    </a>
+                </div>
 
-                <div class="past-incidents-content">
+                <div class="incidents-list">
                     <div
-                        v-for="(dateGroup, dateKey) in groupedIncidentHistory"
-                        :key="dateKey"
-                        class="incident-date-group mb-4"
+                        v-for="group in groupedIncidentHistory"
+                        :key="group.dateKey"
+                        class="incident-card"
                     >
-                        <h4 class="incident-date-header">{{ dateKey }}</h4>
-                        <div class="shadow-box incident-list-box">
+                        <div class="incident-card-header">{{ group.dateKey }}</div>
+                        <div class="incident-card-body">
                             <IncidentHistory
-                                :incidents="dateGroup"
+                                :incidents="group.incidents"
                                 :edit-mode="enableEditMode"
                                 :loading="incidentHistoryLoading"
                                 @edit-incident="$refs.incidentManageModal.showEdit($event)"
@@ -521,19 +561,10 @@
                         </div>
                     </div>
 
-                    <div v-if="incidentHistoryHasMore" class="load-more-controls d-flex justify-content-center mt-3">
-                        <button
-                            class="btn btn-outline-secondary btn-sm"
-                            :disabled="incidentHistoryLoading"
-                            @click="loadMoreIncidentHistory"
-                        >
-                            <span
-                                v-if="incidentHistoryLoading"
-                                class="spinner-border spinner-border-sm me-1"
-                                role="status"
-                            ></span>
-                            {{ $t("Load More") }}
-                        </button>
+                    <div v-if="incidentHistoryHasMore" class="text-center mt-4">
+                        <a :href="incidentsPageUrl" class="view-all-btn">
+                            {{ $t("View All Incidents") }}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -621,6 +652,7 @@ import PublicGroupList from "../components/PublicGroupList.vue";
 import MaintenanceTime from "../components/MaintenanceTime.vue";
 import IncidentHistory from "../components/IncidentHistory.vue";
 import IncidentManageModal from "../components/IncidentManageModal.vue";
+import PublicHeader from "../components/PublicHeader.vue";
 import IncidentEditForm from "../components/IncidentEditForm.vue";
 import { getResBaseURL } from "../util-frontend";
 import {
@@ -658,6 +690,7 @@ export default {
         IncidentHistory,
         IncidentManageModal,
         IncidentEditForm,
+        PublicHeader,
     },
 
     // Leave Page for vue route change
@@ -716,6 +749,26 @@ export default {
             } else {
                 return this.baseURL + this.imgDataUrl;
             }
+        },
+
+        incidentsPageUrl() {
+            return "/status/" + encodeURIComponent(this.slug || "default") + "/incidents";
+        },
+
+        maintenancePageUrl() {
+            return "/status/" + encodeURIComponent(this.slug || "default") + "/maintenance";
+        },
+
+        statusPageBaseUrl() {
+            return "/status/" + encodeURIComponent(this.slug || "default");
+        },
+
+        activeTab() {
+            // Check URL hash or path to determine active tab
+            if (window.location.hash === "#maintenance") {
+                return "maintenance";
+            }
+            return "status";
         },
 
         /**
@@ -876,9 +929,10 @@ export default {
         },
 
         /**
-         * Group past incidents (non-active or unpinned) by date for display
-         * Active+pinned incidents are shown separately at the top, not in this section
-         * @returns {object} Incidents grouped by date string
+         * Group past incidents (non-active or unpinned) by date for display.
+         * Returns an array of { dateKey, incidents } sorted newest date first.
+         * Active+pinned incidents are shown separately at the top, not in this section.
+         * @returns {{ dateKey: string, incidents: object[] }[]} Date groups, newest first
          */
         groupedIncidentHistory() {
             const groups = {};
@@ -890,7 +944,17 @@ export default {
                 }
                 groups[dateKey].push(incident);
             }
-            return groups;
+            // Sort date groups newest first (by first incident's createdDate in each group)
+            return Object.entries(groups)
+                .map(([dateKey, incidents]) => ({
+                    dateKey,
+                    incidents,
+                }))
+                .sort((a, b) => {
+                    const dateA = a.incidents[0]?.createdDate ? new Date(a.incidents[0].createdDate) : new Date(0);
+                    const dateB = b.incidents[0]?.createdDate ? new Date(b.incidents[0].createdDate) : new Date(0);
+                    return dateB - dateA;
+                });
         },
     },
     watch: {
@@ -1148,9 +1212,13 @@ export default {
             let startTime = new Date();
             this.config.slug = this.config.slug.trim().toLowerCase();
 
+            const payload = (this.$root.publicGroupList || []).map((g) => ({
+                ...g,
+                monitorList: g.monitorList || [],
+            }));
             this.$root
                 .getSocket()
-                .emit("saveStatusPage", this.slug, this.config, this.imgDataUrl, this.$root.publicGroupList, (res) => {
+                .emit("saveStatusPage", this.slug, this.config, this.imgDataUrl, payload, (res) => {
                     if (res.ok) {
                         this.enableEditMode = false;
                         this.$root.publicGroupList = res.publicGroupList;
@@ -1458,6 +1526,7 @@ export default {
 
         /**
          * Format date key for grouping (e.g., "December 8, 2025")
+         * Uses the same timezone as the datetime display for consistency
          * @param {string} dateStr - ISO date string
          * @returns {string} Formatted date key
          */
@@ -1465,12 +1534,8 @@ export default {
             if (!dateStr) {
                 return this.$t("Unknown");
             }
-            const date = new Date(dateStr);
-            return date.toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            });
+            // Use dayjs with the app's timezone for consistent date grouping
+            return this.$root.datetimeFormat(dateStr, "MMMM D, YYYY");
         },
 
         /**
@@ -1493,68 +1558,55 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/vars.scss";
 
-.overall-status {
-    font-weight: bold;
-    font-size: 25px;
+// =============================================================================
+// Status Page Styles - Bootstrap Enhanced
+// =============================================================================
 
-    .ok {
-        color: $primary;
-    }
-
-    .warning {
-        color: $warning;
-    }
-
-    .danger {
-        color: $danger;
-    }
-}
-
+// Header
 h1 {
-    font-size: 30px;
-
     img {
         vertical-align: middle;
-        height: 60px;
-        width: 60px;
+        height: 48px;
+        width: 48px;
+        border-radius: 0.5rem;
     }
 }
 
+// Main layout
 .main {
-    transition: all ease-in-out 0.1s;
-
-    &.edit {
-        margin-left: 300px;
-    }
+    transition: all 0.2s ease;
+    &.edit { margin-left: 300px; }
 }
 
+// Sidebar - clean and minimal
 .sidebar {
     position: fixed;
     left: 0;
     top: 0;
     width: 300px;
     height: 100vh;
-
-    border-right: 1px solid #ededed;
+    background: white;
+    border-right: 1px solid $zinc-100;
+    z-index: 100;
 
     .danger-zone {
-        border-top: 1px solid #ededed;
-        padding-top: 15px;
+        border-top: 1px solid $zinc-100;
+        padding-top: 1rem;
+        margin-top: 1rem;
     }
 
     .sidebar-body {
-        padding: 0 10px 10px 10px;
+        padding: 1rem;
         overflow-x: hidden;
         overflow-y: auto;
-        height: calc(100% - 70px);
+        height: calc(100% - 64px);
     }
 
     .sidebar-footer {
-        border-top: 1px solid #ededed;
-        border-right: 1px solid #ededed;
-        padding: 10px;
+        border-top: 1px solid $zinc-100;
+        padding: 0.75rem 1rem;
         width: 300px;
-        height: 70px;
+        height: 64px;
         position: fixed;
         left: 0;
         bottom: 0;
@@ -1562,222 +1614,444 @@ h1 {
         display: flex;
         align-items: center;
     }
-}
 
-footer {
-    text-align: center;
-    font-size: 14px;
-}
+    .dark & {
+        background-color: $dark-bg;
+        border-right-color: $dark-border-color;
 
-.description span {
-    min-width: 50px;
+        .danger-zone,
+        .sidebar-footer { border-color: $dark-border-color; }
+        .sidebar-footer { background-color: $dark-bg; }
+    }
 }
 
 .title-flex {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.75rem;
 }
 
+// Logo controls - subtle
 .logo-wrapper {
     display: inline-block;
     position: relative;
 
-    &:hover {
-        .icon-upload {
-            transform: scale(1.2);
-        }
-    }
+    &:hover .icon-upload { opacity: 1; }
 
     .icon-upload {
-        transition: all $easing-in 0.2s;
+        transition: all 0.2s ease;
         position: absolute;
-        bottom: 6px;
-        font-size: 20px;
-        left: -14px;
+        bottom: 4px;
+        left: -12px;
         background-color: white;
-        padding: 5px;
-        border-radius: 10px;
+        padding: 4px;
+        border-radius: 0.375rem;
         cursor: pointer;
-        box-shadow: 0 15px 70px rgba(0, 0, 0, 0.9);
+        opacity: 0.8;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
-    /* Reset button placed at top-left of the logo */
-    .reset-top-left {
-        transition:
-            transform $easing-in 0.18s,
-            box-shadow $easing-in 0.18s,
-            background-color $easing-in 0.18s;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: white;
-        border: none;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        transform-origin: center;
-
-        &:hover {
-            background-color: rgba(0, 0, 0, 0.06);
-            transform: scale(1.18);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-        }
-
-        &:hover ~ .icon-upload {
-            transform: none !important;
-        }
-    }
-
+    .reset-top-left,
     .small-reset-btn {
-        transition:
-            transform $easing-in 0.18s,
-            box-shadow $easing-in 0.18s,
-            background-color $easing-in 0.18s;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         padding: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: transparent;
         border: none;
         cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 0.75rem;
 
         &:hover {
-            background-color: rgba(0, 0, 0, 0.04);
-            transform: scale(1.18);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            background-color: $zinc-100;
         }
     }
+
+    .reset-top-left {
+        background: white;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    .small-reset-btn { background: transparent; }
 }
 
 .logo {
-    transition: all $easing-in 0.2s;
-
+    transition: all 0.2s ease;
     &.edit-mode {
         cursor: pointer;
+        &:hover { transform: scale(1.05); }
+    }
+}
+
+// Overall Status - Pill badge, moderate size
+.overall-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.375rem 0.875rem;
+    border-radius: 999px;
+    background: rgba($emerald-500, 0.1);
+
+    &.text-success {
+        background: rgba($emerald-500, 0.1);
+        color: $emerald-500;
+    }
+
+    &.text-warning {
+        background: rgba($warning, 0.1);
+        color: $warning;
+    }
+
+    &.text-danger {
+        background: rgba($danger, 0.1);
+        color: $danger;
+    }
+
+    &.text-info {
+        background: rgba($blue-500, 0.1);
+        color: $blue-500;
+    }
+
+    &.text-secondary, &.text-muted {
+        background: rgba($zinc-500, 0.1);
+        color: $zinc-500;
+    }
+}
+
+.status-icon {
+    font-size: 1rem;
+}
+
+// Active Incident - Compact style
+.active-incident {
+    background: rgba($danger, 0.04);
+    border: 1px solid rgba($danger, 0.12);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+
+    .incident-header {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        margin-bottom: 0.375rem;
+    }
+
+    .incident-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+
+        &-danger { background: $danger; }
+        &-warning { background: $warning; }
+        &-info { background: $blue-500; }
+        &-primary { background: $primary; }
+    }
+
+    .incident-status-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: $danger;
+    }
+
+    .incident-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: $zinc-900;
+
+        .dark & { color: $zinc-100; }
+    }
+
+    .incident-content {
+        font-size: 0.8125rem;
+        color: $zinc-600;
+        margin-bottom: 0.375rem;
+        line-height: 1.4;
+
+        .dark & { color: $zinc-400; }
+    }
+
+    .incident-meta {
+        font-size: 0.75rem;
+        color: $zinc-500;
+    }
+
+    .incident-actions {
+        display: flex;
+        gap: 0.375rem;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba($danger, 0.08);
+    }
+
+    .dark & {
+        background: rgba($danger, 0.08);
+        border-color: rgba($danger, 0.2);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+// Maintenance - Compact style with description
+.maintenance-section {
+    margin-top: 0.5rem;
+}
+
+.maintenance-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: rgba($blue-500, 0.04);
+    border: 1px solid rgba($blue-500, 0.1);
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.75rem;
+    margin-bottom: 0.375rem;
+
+    &:last-child { margin-bottom: 0; }
+
+    .maintenance-icon {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba($blue-500, 0.1);
+        border-radius: 0.25rem;
+        color: $blue-500;
+        font-size: 0.625rem;
+        margin-top: 0.125rem;
+    }
+
+    .maintenance-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .maintenance-header {
+        margin-bottom: 0.25rem;
+    }
+
+    .maintenance-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: $zinc-800;
+
+        .dark & { color: $zinc-200; }
+    }
+
+    .maintenance-desc {
+        font-size: 0.75rem;
+        color: $zinc-600;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+
+        .dark & { color: $zinc-400; }
+
+        p { margin: 0; }
+    }
+
+    .maintenance-time {
+        font-size: 0.6875rem;
+        color: $zinc-500;
+
+        .dark & { color: $zinc-400; }
+    }
+
+    .dark & {
+        background: rgba($blue-500, 0.08);
+        border-color: rgba($blue-500, 0.15);
+    }
+}
+
+// Past Incidents Section - Compact
+.past-incidents-section {
+    border-top: 1px solid $zinc-100;
+
+    .dark & { border-top-color: $dark-border-color; }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $zinc-500;
+    margin: 0;
+}
+
+.section-link {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $primary;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+}
+
+// Incident cards - matching incident page design
+.incident-card {
+    background: white;
+    border: 1px solid $zinc-100;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+
+    &:last-child { margin-bottom: 0; }
+
+    .dark & {
+        background: $dark-bg;
+        border-color: $dark-border-color;
+    }
+}
+
+.incident-card-header {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $zinc-800;
+    border-bottom: 1px solid $zinc-100;
+
+    .dark & {
+        color: $zinc-200;
+        border-bottom-color: $dark-border-color;
+    }
+}
+
+.incident-card-body {
+    padding: 0.75rem;
+}
+
+.view-all-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $zinc-600;
+    background: white;
+    border: 1px solid $zinc-200;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: $zinc-50;
+        border-color: $zinc-300;
+        color: $zinc-800;
+    }
+
+    .dark & {
+        background: $dark-bg;
+        border-color: $dark-border-color;
+        color: $zinc-400;
 
         &:hover {
-            transform: scale(1.2);
+            background: $zinc-800;
+            color: $zinc-200;
         }
     }
 }
 
+// Legacy Incidents (keep for compatibility)
 .incident {
+    border-radius: 0.75rem;
+    
+    .alert-heading {
+        font-weight: 600;
+    }
+
     .content {
-        &[contenteditable="true"] {
-            min-height: 60px;
-        }
+        line-height: 1.6;
+        &[contenteditable="true"] { min-height: 48px; }
     }
 
     .date {
-        font-size: 12px;
+        font-size: 0.75rem;
+        opacity: 0.7;
     }
 }
 
-.maintenance-bg-info {
-    color: $maintenance;
-}
-
+// Maintenance
 .maintenance-icon {
-    font-size: 35px;
+    font-size: 1.5rem;
     vertical-align: middle;
-}
-
-.dark .shadow-box {
-    background-color: #0d1117;
 }
 
 .status-maintenance {
     color: $maintenance;
-    margin-right: 5px;
+    margin-right: 0.375rem;
 }
 
-.mobile {
-    h1 {
-        font-size: 22px;
-    }
+// Domain list - minimal
+.domain-name-list li {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
 
-    .overall-status {
-        font-size: 20px;
-    }
-}
-
-.dark {
-    .sidebar {
-        background-color: $dark-header-bg;
-        border-right-color: $dark-border-color;
-
-        .danger-zone {
-            border-top-color: $dark-border-color;
-        }
-
-        .sidebar-footer {
-            border-right-color: $dark-border-color;
-            border-top-color: $dark-border-color;
-            background-color: $dark-header-bg;
-        }
+    .domain-input {
+        flex-grow: 1;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.875rem;
+        &::placeholder { color: $zinc-400; }
     }
 }
 
-.domain-name-list {
-    li {
-        display: flex;
-        align-items: center;
-        padding: 10px 0 10px 10px;
 
-        .domain-input {
-            flex-grow: 1;
-            background-color: transparent;
-            border: none;
-            color: $dark-font-color;
-            outline: none;
+// Description area
+.description {
+    line-height: 1.6;
+    color: $zinc-600;
 
-            &::placeholder {
-                color: #1d2634;
-            }
-        }
-    }
+    .dark & { color: $zinc-400; }
 }
 
-.bg-maintenance {
-    .alert-heading {
-        font-weight: bold;
-    }
+// Footer
+footer {
+    font-size: 0.8125rem;
+    color: $zinc-400;
 }
 
 .refresh-info {
+    font-size: 0.75rem;
     opacity: 0.7;
 }
 
-.past-incidents-title {
-    font-size: 26px;
-    font-weight: normal;
-}
-
-.past-incidents-section {
-    .past-incidents-content {
-        padding: 0;
-    }
-}
-
-.incident-date-group {
-    .incident-date-header {
-        font-size: 1rem;
-        font-weight: normal;
-        color: var(--bs-secondary);
-        margin-bottom: 0.75rem;
-    }
-
-    .incident-list-box {
-        padding: 0;
+// Mobile - responsive adjustments
+.mobile {
+    h1 { font-size: 1.25rem; }
+    .status-badge { font-size: 0.8125rem; }
+    .status-icon { font-size: 0.8125rem; }
+    
+    h1 img {
+        max-width: 200px;
     }
 }
 </style>

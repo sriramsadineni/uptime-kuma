@@ -38,6 +38,7 @@
                                         <option value="snmp">SNMP</option>
                                         <option value="keyword">HTTP(s) - {{ $t("Keyword") }}</option>
                                         <option value="json-query">HTTP(s) - {{ $t("Json Query") }}</option>
+                                        <option value="json-query-multi">HTTP(s) - {{ $t("Health Check Entries") }}</option>
                                         <option value="grpc-keyword">gRPC(s) - {{ $t("Keyword") }}</option>
                                         <option value="dns">DNS</option>
                                         <option value="docker">
@@ -163,6 +164,7 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     monitor.type === 'real-browser'
                                 "
                                 class="my-3"
@@ -801,6 +803,117 @@
                                 </div>
                             </div>
 
+                            <!-- Health Check Entries Configuration -->
+                            <div v-if="monitor.type === 'json-query-multi'" class="my-3">
+                                <h4 class="mb-3">{{ $t("Health Check Entries") }}</h4>
+
+                                <div class="mb-3">
+                                    <label for="healthEntriesPath" class="form-label">
+                                        {{ $t("Entries Path") }}
+                                    </label>
+                                    <input
+                                        id="healthEntriesPath"
+                                        v-model="monitor.healthEntriesPath"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="entries"
+                                    />
+                                    <div class="form-text">
+                                        {{ $t("healthEntriesPathDescription") }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="healthStatusField" class="form-label">
+                                        {{ $t("Status Field") }}
+                                    </label>
+                                    <input
+                                        id="healthStatusField"
+                                        v-model="monitor.healthStatusField"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="status"
+                                    />
+                                    <div class="form-text">
+                                        {{ $t("healthStatusFieldDescription") }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="healthExpectedValue" class="form-label">
+                                        {{ $t("Expected Value") }}
+                                    </label>
+                                    <input
+                                        id="healthExpectedValue"
+                                        v-model="monitor.healthExpectedValue"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Healthy"
+                                    />
+                                    <div class="form-text">
+                                        {{ $t("healthExpectedValueDescription") }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        {{ $t("Select Entries to Monitor") }}
+                                    </label>
+
+                                    <div class="d-flex mb-2">
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary me-2"
+                                            :disabled="!monitor.url || fetchingEntries"
+                                            @click="fetchHealthEntries"
+                                        >
+                                            <span v-if="fetchingEntries" class="spinner-border spinner-border-sm me-1"></span>
+                                            {{ $t("Fetch Entries") }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-secondary"
+                                            @click="addCustomEntry"
+                                        >
+                                            {{ $t("Add Custom Entry") }}
+                                        </button>
+                                    </div>
+
+                                    <div v-if="fetchEntriesError" class="alert alert-danger mb-2">
+                                        {{ fetchEntriesError }}
+                                    </div>
+
+                                    <div v-if="availableEntries.length > 0" class="list-group mb-2">
+                                        <label
+                                            v-for="entry in availableEntries"
+                                            :key="entry"
+                                            class="list-group-item list-group-item-action d-flex align-items-center"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input me-2"
+                                                :checked="isEntrySelected(entry)"
+                                                @change="toggleEntry(entry)"
+                                            />
+                                            <span class="flex-grow-1">{{ entry }}</span>
+                                            <span
+                                                v-if="entryStatuses[entry]"
+                                                class="badge"
+                                                :class="entryStatuses[entry] === 'Healthy' ? 'bg-success' : 'bg-danger'"
+                                            >
+                                                {{ entryStatuses[entry] }}
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <div v-if="monitor.healthCheckEntries && monitor.healthCheckEntries.length > 0" class="mt-2">
+                                        <small class="text-muted">
+                                            {{ $t("Selected entries:") }} {{ monitor.healthCheckEntries.join(", ") }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- DNS Resolver Server -->
                             <!-- For DNS Type -->
                             <template v-if="monitor.type === 'dns'">
@@ -1345,6 +1458,7 @@
                                 v-if="
                                     monitor.type === 'http' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'ping' ||
                                     monitor.type === 'rabbitmq' ||
@@ -1400,6 +1514,7 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     (monitor.type === 'port' &&
                                         ['starttls', 'secure'].includes(monitor.smtpSecurity)) ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
@@ -1490,6 +1605,7 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     monitor.type === 'redis' ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
                                 "
@@ -1512,6 +1628,7 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
                                 "
                                 class="my-3 form-check"
@@ -1690,6 +1807,7 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi' ||
                                     monitor.type === 'grpc-keyword'
                                 "
                             >
@@ -1713,7 +1831,8 @@
                                     v-if="
                                         monitor.type === 'http' ||
                                         monitor.type === 'keyword' ||
-                                        monitor.type === 'json-query'
+                                        monitor.type === 'json-query' ||
+                                        monitor.type === 'json-query-multi'
                                     "
                                     class="my-3"
                                 >
@@ -1741,7 +1860,8 @@
                                     v-if="
                                         (monitor.type === 'http' ||
                                             monitor.type === 'keyword' ||
-                                            monitor.type === 'json-query') &&
+                                            monitor.type === 'json-query' ||
+                                            monitor.type === 'json-query-multi') &&
                                         monitor.saveErrorResponse
                                     "
                                     class="my-3"
@@ -1770,7 +1890,8 @@
                                     v-if="
                                         (monitor.type === 'http' ||
                                             monitor.type === 'keyword' ||
-                                            monitor.type === 'json-query') &&
+                                            monitor.type === 'json-query' ||
+                                            monitor.type === 'json-query-multi') &&
                                         (monitor.saveResponse || monitor.saveErrorResponse)
                                     "
                                     class="my-3"
@@ -1936,7 +2057,8 @@
                                 v-if="
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
-                                    monitor.type === 'json-query'
+                                    monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi'
                                 "
                             >
                                 <h2 class="mt-5 mb-2">{{ $t("Proxy") }}</h2>
@@ -2081,7 +2203,8 @@
                                 v-if="
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
-                                    monitor.type === 'json-query'
+                                    monitor.type === 'json-query' ||
+                                    monitor.type === 'json-query-multi'
                                 "
                             >
                                 <h2 class="mt-5 mb-2">{{ $t("HTTP Options") }}</h2>
@@ -2796,6 +2919,11 @@ const monitorDefaults = {
     rabbitmqPassword: "",
     conditions: [],
     system_service_name: "",
+    // Health check entries defaults
+    healthCheckEntries: [],
+    healthEntriesPath: "entries",
+    healthStatusField: "status",
+    healthExpectedValue: "Healthy",
 };
 
 export default {
@@ -2845,6 +2973,11 @@ export default {
                 confirmed: false,
                 editedValue: false,
             },
+            // Health check entries
+            availableEntries: [],
+            entryStatuses: {},
+            fetchingEntries: false,
+            fetchEntriesError: null,
         };
     },
 
@@ -3482,6 +3615,91 @@ message HealthCheckResponse {
 
         addRabbitmqNode(newNode) {
             this.monitor.rabbitmqNodes.push(newNode);
+        },
+
+        /**
+         * Fetch available entries from the health check endpoint
+         * @returns {Promise<void>}
+         */
+        async fetchHealthEntries() {
+            if (!this.monitor.url) {
+                this.fetchEntriesError = "Please enter a URL first";
+                return;
+            }
+
+            this.fetchingEntries = true;
+            this.fetchEntriesError = null;
+            this.availableEntries = [];
+            this.entryStatuses = {};
+
+            this.$root.getSocket().emit("fetchHealthEntries", {
+                url: this.monitor.url,
+                method: this.monitor.method || "GET",
+                headers: this.monitor.headers || null,
+                entriesPath: this.monitor.healthEntriesPath || "entries",
+                statusField: this.monitor.healthStatusField || "status",
+            }, (res) => {
+                this.fetchingEntries = false;
+
+                if (res.ok) {
+                    this.availableEntries = res.entries;
+                    this.entryStatuses = res.statuses;
+
+                    // Auto-select all entries if none are selected
+                    if (!this.monitor.healthCheckEntries || this.monitor.healthCheckEntries.length === 0) {
+                        this.monitor.healthCheckEntries = [...this.availableEntries];
+                    }
+                } else {
+                    this.fetchEntriesError = res.msg || "Failed to fetch entries";
+                }
+            });
+        },
+
+        /**
+         * Check if an entry is selected
+         * @param {string} entry Entry key
+         * @returns {boolean} Whether the entry is selected
+         */
+        isEntrySelected(entry) {
+            return this.monitor.healthCheckEntries && this.monitor.healthCheckEntries.includes(entry);
+        },
+
+        /**
+         * Toggle entry selection
+         * @param {string} entry Entry key
+         * @returns {void}
+         */
+        toggleEntry(entry) {
+            if (!this.monitor.healthCheckEntries) {
+                this.monitor.healthCheckEntries = [];
+            }
+
+            const index = this.monitor.healthCheckEntries.indexOf(entry);
+            if (index === -1) {
+                this.monitor.healthCheckEntries.push(entry);
+            } else {
+                this.monitor.healthCheckEntries.splice(index, 1);
+            }
+        },
+
+        /**
+         * Add a custom entry key
+         * @returns {void}
+         */
+        addCustomEntry() {
+            const entryKey = prompt("Enter custom entry key:");
+            if (entryKey && entryKey.trim()) {
+                const key = entryKey.trim();
+                if (!this.availableEntries.includes(key)) {
+                    this.availableEntries.push(key);
+                }
+                if (!this.monitor.healthCheckEntries) {
+                    this.monitor.healthCheckEntries = [];
+                }
+                if (!this.monitor.healthCheckEntries.includes(key)) {
+                    this.monitor.healthCheckEntries.push(key);
+                }
+            }
         },
 
         /**

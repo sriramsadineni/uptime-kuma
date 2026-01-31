@@ -24,6 +24,7 @@
                         monitor.type === 'http' ||
                         monitor.type === 'keyword' ||
                         monitor.type === 'json-query' ||
+                        monitor.type === 'json-query-multi' ||
                         monitor.type === 'real-browser' ||
                         monitor.type === 'websocket-upgrade'
                     "
@@ -58,6 +59,14 @@
                     <br />
                     <span>{{ $t("Expected Value") }}:</span>
                     <span class="keyword">{{ monitor.expectedValue }}</span>
+                </span>
+                <span v-if="monitor.type === 'json-query-multi'">
+                    <br />
+                    <span>{{ $t("Health Check Entries") }}:</span>
+                    <span class="keyword">{{ monitor.healthCheckEntries ? monitor.healthCheckEntries.join(", ") : "" }}</span>
+                    <br />
+                    <span>{{ $t("Expected Value") }}:</span>
+                    <span class="keyword">{{ monitor.healthExpectedValue }}</span>
                 </span>
                 <span v-if="monitor.type === 'dns'">
                     [{{ monitor.dns_resolve_type }}] {{ monitor.hostname }}
@@ -146,6 +155,13 @@
                         </span>
                     </div>
                 </div>
+
+                <!-- Health Check Entries for multi-entry monitors -->
+                <HealthCheckEntries
+                    v-if="monitor.type === 'json-query-multi'"
+                    :monitor-id="monitor.id"
+                    class="mt-3"
+                />
             </div>
 
             <!-- Push Examples -->
@@ -430,6 +446,7 @@ import Pagination from "v-pagination-3";
 const PingChart = defineAsyncComponent(() => import("../components/PingChart.vue"));
 import Tag from "../components/Tag.vue";
 import CertificateInfo from "../components/CertificateInfo.vue";
+import HealthCheckEntries from "../components/HealthCheckEntries.vue";
 import { getMonitorRelativeURL } from "../util.ts";
 import { URL } from "whatwg-url";
 import DOMPurify from "dompurify";
@@ -457,6 +474,7 @@ export default {
         CertificateInfo,
         PrismEditor,
         ScreenshotDialog,
+        HealthCheckEntries,
     },
     data() {
         return {

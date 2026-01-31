@@ -1,23 +1,77 @@
-$primary: #5cdd8b;
-$danger: #dc3545;
-$warning: #f8a306;
-$maintenance: #1747f5;
-$link-color: #111;
-$border-radius: 50rem;
-$secondary-text: #aaa;
+// =============================================================================
+// Uptime Kuma Variables - shadcn/ui Zinc Theme
+// =============================================================================
 
-$highlight: #7ce8a4;
-$highlight-white: #e7faec;
+// =============================================================================
+// Zinc Color Palette (reference - also defined in _bootstrap-overrides.scss)
+// =============================================================================
+$zinc-50:  #fafafa;
+$zinc-100: #f4f4f5;
+$zinc-200: #e4e4e7;
+$zinc-300: #d4d4d8;
+$zinc-400: #a1a1aa;
+$zinc-500: #71717a;
+$zinc-600: #52525b;
+$zinc-700: #3f3f46;
+$zinc-800: #27272a;
+$zinc-900: #18181b;
+$zinc-950: #09090b;
 
-$dark-font-color: #b1b8c0;
-$dark-font-color2: #020b05;
-$dark-bg: #0d1117;
-$dark-bg2: #070a10;
-$dark-border-color: #1d2634;
-$dark-header-bg: #161b22;
+// Accent colors (shadcn-style)
+$emerald-500: #10b981;
+$emerald-600: #059669;
+$red-500: #ef4444;
+$amber-500: #f59e0b;
+$blue-500: #3b82f6;
+$violet-500: #8b5cf6;
 
+// =============================================================================
+// Theme Colors
+// =============================================================================
+
+// Primary accent color - using emerald for "up" status (green indicator)
+$primary: $emerald-500;
+$danger: $red-500;
+$warning: $amber-500;
+$maintenance: $blue-500;
+$link-color: $zinc-900;
+$secondary-text: $zinc-500;
+
+// Status highlight colors
+$highlight: $emerald-500;
+$highlight-white: $zinc-100;
+
+// =============================================================================
+// Light Theme
+// =============================================================================
+$light-bg: $zinc-50;
+$light-bg2: white;
+$light-border-color: $zinc-200;
+$light-header-bg: white;
+$light-font-color: $zinc-700;
+$light-font-color2: $zinc-950;
+
+// =============================================================================
+// Dark Theme Colors (shadcn/zinc dark mode)
+// =============================================================================
+$dark-font-color: $zinc-400;
+$dark-font-color2: $zinc-50;
+$dark-bg: $zinc-900;
+$dark-bg2: $zinc-950;
+$dark-border-color: $zinc-800;
+$dark-header-bg: $zinc-900;
+
+// =============================================================================
+// Animation Easing Functions
+// =============================================================================
 $easing-in: cubic-bezier(0.54, 0.78, 0.55, 0.97);
 $easing-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 $easing-in-out: cubic-bezier(0.79, 0.14, 0.15, 0.86);
 
+// =============================================================================
+// Component-Specific Variables
+// =============================================================================
 $dropdown-border-radius: 0.5rem;
+$border-radius: 0.5rem;
+$border-radius-sm: 0.375rem;
+$border-radius-lg: 0.75rem;

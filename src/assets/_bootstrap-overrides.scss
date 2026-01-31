@@ -1,0 +1,1275 @@
+// =============================================================================
+// shadcn/ui Complete Bootstrap 5 Variable Overrides
+// =============================================================================
+// This file provides a comprehensive override of Bootstrap 5 to match shadcn/ui
+// Must be imported BEFORE Bootstrap in app.scss
+// Reference: https://ui.shadcn.com/docs/theming
+
+// =============================================================================
+// SECTION 1: Color Palette
+// =============================================================================
+
+// Zinc Color Palette (Tailwind/shadcn standard)
+$zinc-50:  #fafafa;
+$zinc-100: #f4f4f5;
+$zinc-200: #e4e4e7;
+$zinc-300: #d4d4d8;
+$zinc-400: #a1a1aa;
+$zinc-500: #71717a;
+$zinc-600: #52525b;
+$zinc-700: #3f3f46;
+$zinc-800: #27272a;
+$zinc-900: #18181b;
+$zinc-950: #09090b;
+
+// Slate Color Palette (alternative neutral)
+$slate-50:  #f8fafc;
+$slate-100: #f1f5f9;
+$slate-200: #e2e8f0;
+$slate-300: #cbd5e1;
+$slate-400: #94a3b8;
+$slate-500: #64748b;
+$slate-600: #475569;
+$slate-700: #334155;
+$slate-800: #1e293b;
+$slate-900: #0f172a;
+$slate-950: #020617;
+
+// Semantic Color Palette
+$red-50:  #fef2f2;
+$red-100: #fee2e2;
+$red-200: #fecaca;
+$red-300: #fca5a5;
+$red-400: #f87171;
+$red-500: #ef4444;
+$red-600: #dc2626;
+$red-700: #b91c1c;
+$red-800: #991b1b;
+$red-900: #7f1d1d;
+
+$orange-50:  #fff7ed;
+$orange-100: #ffedd5;
+$orange-200: #fed7aa;
+$orange-300: #fdba74;
+$orange-400: #fb923c;
+$orange-500: #f97316;
+$orange-600: #ea580c;
+$orange-700: #c2410c;
+
+$amber-50:  #fffbeb;
+$amber-100: #fef3c7;
+$amber-200: #fde68a;
+$amber-300: #fcd34d;
+$amber-400: #fbbf24;
+$amber-500: #f59e0b;
+$amber-600: #d97706;
+$amber-700: #b45309;
+
+$yellow-50:  #fefce8;
+$yellow-100: #fef9c3;
+$yellow-200: #fef08a;
+$yellow-300: #fde047;
+$yellow-400: #facc15;
+$yellow-500: #eab308;
+$yellow-600: #ca8a04;
+
+$lime-500: #84cc16;
+$green-500: #22c55e;
+$green-600: #16a34a;
+
+$emerald-50:  #ecfdf5;
+$emerald-100: #d1fae5;
+$emerald-200: #a7f3d0;
+$emerald-300: #6ee7b7;
+$emerald-400: #34d399;
+$emerald-500: #10b981;
+$emerald-600: #059669;
+$emerald-700: #047857;
+
+$teal-500: #14b8a6;
+$cyan-500: #06b6d4;
+
+$sky-500: #0ea5e9;
+$sky-600: #0284c7;
+
+$blue-50:  #eff6ff;
+$blue-100: #dbeafe;
+$blue-200: #bfdbfe;
+$blue-300: #93c5fd;
+$blue-400: #60a5fa;
+$blue-500: #3b82f6;
+$blue-600: #2563eb;
+$blue-700: #1d4ed8;
+
+$indigo-500: #6366f1;
+$indigo-600: #4f46e5;
+
+$violet-500: #8b5cf6;
+$violet-600: #7c3aed;
+
+$purple-500: #a855f7;
+$purple-600: #9333ea;
+
+$fuchsia-500: #d946ef;
+$pink-500: #ec4899;
+$rose-500: #f43f5e;
+
+// =============================================================================
+// SECTION 2: Theme Colors
+// =============================================================================
+
+// Bootstrap Theme Color Overrides
+$primary: $zinc-900;
+$secondary: $zinc-100;
+$success: $emerald-500;
+$info: $blue-500;
+$warning: $amber-500;
+$danger: $red-500;
+$light: $zinc-100;
+$dark: $zinc-900;
+
+// Extended theme map
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark,
+  "muted":      $zinc-500,
+);
+
+// Grayscale mapping for Bootstrap
+$white: #ffffff;
+$gray-100: $zinc-100;
+$gray-200: $zinc-200;
+$gray-300: $zinc-300;
+$gray-400: $zinc-400;
+$gray-500: $zinc-500;
+$gray-600: $zinc-600;
+$gray-700: $zinc-700;
+$gray-800: $zinc-800;
+$gray-900: $zinc-900;
+$black: $zinc-950;
+
+$grays: (
+  "100": $gray-100,
+  "200": $gray-200,
+  "300": $gray-300,
+  "400": $gray-400,
+  "500": $gray-500,
+  "600": $gray-600,
+  "700": $gray-700,
+  "800": $gray-800,
+  "900": $gray-900
+);
+
+// =============================================================================
+// SECTION 3: Body & Layout
+// =============================================================================
+
+$body-bg: $zinc-50;
+$body-color: $zinc-950;
+$body-text-align: null;
+
+// =============================================================================
+// SECTION 4: Typography
+// =============================================================================
+
+// Font Family (shadcn uses Inter, fallback to system)
+$font-family-sans-serif: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-monospace: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+$font-family-base: $font-family-sans-serif;
+$font-family-code: $font-family-monospace;
+
+// Font Sizes (shadcn defaults - 14px base)
+$font-size-root: null;
+$font-size-base: 0.875rem; // 14px
+$font-size-sm: 0.75rem;    // 12px
+$font-size-lg: 1rem;       // 16px
+
+// Font Weights
+$font-weight-lighter: 300;
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-bolder: 800;
+
+$font-weight-base: $font-weight-normal;
+
+// Line Heights
+$line-height-base: 1.5;
+$line-height-sm: 1.25;
+$line-height-lg: 2;
+
+// Headings
+$headings-margin-bottom: 0.5rem;
+$headings-font-family: null;
+$headings-font-style: null;
+$headings-font-weight: 600;
+$headings-line-height: 1.2;
+$headings-color: $zinc-950;
+
+// Heading Sizes (shadcn-style)
+$h1-font-size: 2.25rem;  // 36px
+$h2-font-size: 1.875rem; // 30px
+$h3-font-size: 1.5rem;   // 24px
+$h4-font-size: 1.25rem;  // 20px
+$h5-font-size: 1.125rem; // 18px
+$h6-font-size: 1rem;     // 16px
+
+// Display Headings
+$display-font-sizes: (
+  1: 4.5rem,
+  2: 3.75rem,
+  3: 3rem,
+  4: 2.25rem,
+  5: 1.875rem,
+  6: 1.5rem
+);
+$display-font-family: null;
+$display-font-style: null;
+$display-font-weight: 700;
+$display-line-height: 1.1;
+
+// Lead
+$lead-font-size: 1.125rem;
+$lead-font-weight: 400;
+
+// Small
+$small-font-size: 0.75rem;
+
+// Text Muted
+$text-muted: $zinc-500;
+
+// Letter Spacing
+$letter-spacing-tighter: -0.05em;
+$letter-spacing-tight: -0.025em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.025em;
+$letter-spacing-wider: 0.05em;
+$letter-spacing-widest: 0.1em;
+
+// =============================================================================
+// SECTION 5: Spacing
+// =============================================================================
+
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,   // 4px
+  2: $spacer * 0.5,    // 8px
+  3: $spacer * 0.75,   // 12px
+  4: $spacer,          // 16px
+  5: $spacer * 1.25,   // 20px
+  6: $spacer * 1.5,    // 24px
+  7: $spacer * 2,      // 32px
+  8: $spacer * 2.5,    // 40px
+  9: $spacer * 3,      // 48px
+  10: $spacer * 4,     // 64px
+);
+
+// Negative margins
+$enable-negative-margins: true;
+
+// =============================================================================
+// SECTION 6: Grid & Containers
+// =============================================================================
+
+$grid-columns: 12;
+$grid-gutter-width: 1.5rem;
+$grid-row-columns: 6;
+
+$container-padding-x: 1rem;
+
+$container-max-widths: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  xxl: 1536px
+);
+
+// =============================================================================
+// SECTION 7: Border Radius
+// =============================================================================
+
+$border-radius: 0.5rem;       // 8px - default
+$border-radius-sm: 0.375rem;  // 6px
+$border-radius-lg: 0.75rem;   // 12px
+$border-radius-xl: 1rem;      // 16px
+$border-radius-xxl: 1.5rem;   // 24px
+$border-radius-pill: 9999px;
+
+// =============================================================================
+// SECTION 8: Borders
+// =============================================================================
+
+$border-width: 1px;
+$border-widths: (
+  1: 1px,
+  2: 2px,
+  3: 3px,
+  4: 4px,
+  5: 5px
+);
+$border-style: solid;
+$border-color: $zinc-200;
+$border-color-translucent: rgba($black, 0.1);
+
+// =============================================================================
+// SECTION 9: Shadows (shadcn-style)
+// =============================================================================
+
+$box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+$box-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$box-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+$box-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+$box-shadow-inset: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+// =============================================================================
+// SECTION 10: Links
+// =============================================================================
+
+$link-color: $zinc-900;
+$link-decoration: none;
+$link-shade-percentage: 20%;
+$link-hover-color: shift-color($link-color, $link-shade-percentage);
+$link-hover-decoration: underline;
+
+// Stretched link
+$stretched-link-pseudo-element: after;
+$stretched-link-z-index: 1;
+
+// =============================================================================
+// SECTION 11: Transitions
+// =============================================================================
+
+$transition-base: all 0.15s ease-in-out;
+$transition-fade: opacity 0.15s linear;
+$transition-collapse: height 0.35s ease;
+$transition-collapse-width: width 0.35s ease;
+
+// Custom transitions (shadcn-style)
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// =============================================================================
+// SECTION 12: Focus Ring (shadcn-style)
+// =============================================================================
+
+$focus-ring-width: 2px;
+$focus-ring-opacity: 1;
+$focus-ring-color: $zinc-950;
+$focus-ring-blur: 0;
+$focus-ring-box-shadow: 0 0 0 $focus-ring-width rgba($focus-ring-color, 0.5);
+
+// =============================================================================
+// SECTION 13: Buttons
+// =============================================================================
+
+$btn-color: $zinc-900;
+$btn-padding-y: 0.5rem;
+$btn-padding-x: 1rem;
+$btn-font-family: null;
+$btn-font-size: 0.875rem;
+$btn-line-height: 1.5;
+$btn-white-space: null;
+$btn-font-weight: 500;
+
+$btn-padding-y-sm: 0.375rem;
+$btn-padding-x-sm: 0.75rem;
+$btn-font-size-sm: 0.75rem;
+
+$btn-padding-y-lg: 0.625rem;
+$btn-padding-x-lg: 1.25rem;
+$btn-font-size-lg: 1rem;
+
+$btn-border-width: 1px;
+$btn-border-radius: $border-radius;
+$btn-border-radius-sm: $border-radius-sm;
+$btn-border-radius-lg: $border-radius;
+
+$btn-box-shadow: none;
+$btn-focus-width: 2px;
+$btn-focus-color-opacity: 0.25;
+$btn-focus-color: rgba($zinc-950, $btn-focus-color-opacity);
+$btn-focus-blur: 0;
+$btn-focus-box-shadow: 0 0 0 $btn-focus-width $btn-focus-color;
+
+$btn-disabled-opacity: 0.5;
+$btn-active-box-shadow: none;
+
+$btn-link-color: $link-color;
+$btn-link-hover-color: $link-hover-color;
+$btn-link-disabled-color: $zinc-400;
+$btn-link-focus-shadow-rgb: null;
+
+// Button hover/active darken amounts
+$btn-hover-bg-shade-amount: 15%;
+$btn-hover-bg-tint-amount: 15%;
+$btn-hover-border-shade-amount: 20%;
+$btn-hover-border-tint-amount: 10%;
+$btn-active-bg-shade-amount: 20%;
+$btn-active-bg-tint-amount: 20%;
+$btn-active-border-shade-amount: 25%;
+$btn-active-border-tint-amount: 10%;
+
+// =============================================================================
+// SECTION 14: Form Controls
+// =============================================================================
+
+$input-padding-y: 0.5rem;
+$input-padding-x: 0.75rem;
+$input-font-family: null;
+$input-font-size: 0.875rem;
+$input-font-weight: 400;
+$input-line-height: 1.5;
+
+$input-padding-y-sm: 0.375rem;
+$input-padding-x-sm: 0.625rem;
+$input-font-size-sm: 0.75rem;
+
+$input-padding-y-lg: 0.625rem;
+$input-padding-x-lg: 1rem;
+$input-font-size-lg: 1rem;
+
+$input-bg: $white;
+$input-disabled-color: $zinc-500;
+$input-disabled-bg: $zinc-100;
+$input-disabled-border-color: $zinc-200;
+
+$input-color: $zinc-900;
+$input-border-color: $zinc-200;
+$input-border-width: 1px;
+$input-box-shadow: none;
+
+$input-border-radius: $border-radius;
+$input-border-radius-sm: $border-radius-sm;
+$input-border-radius-lg: $border-radius;
+
+$input-focus-bg: $input-bg;
+$input-focus-border-color: $zinc-400;
+$input-focus-color: $input-color;
+$input-focus-width: 2px;
+$input-focus-box-shadow: 0 0 0 $input-focus-width rgba($zinc-950, 0.1);
+
+$input-placeholder-color: $zinc-400;
+$input-plaintext-color: $body-color;
+
+// Note: $input-height, $input-height-sm, $input-height-lg are computed by Bootstrap
+
+$input-transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+// Form Text
+$form-text-margin-top: 0.25rem;
+$form-text-font-size: 0.75rem;
+$form-text-font-style: null;
+$form-text-font-weight: 400;
+$form-text-color: $zinc-500;
+
+// Form Labels
+$form-label-margin-bottom: 0.5rem;
+$form-label-font-size: 0.875rem;
+$form-label-font-style: null;
+$form-label-font-weight: 500;
+$form-label-color: $zinc-900;
+
+// Floating Labels
+$form-floating-height: calc(3.5rem + $input-border-width * 2);
+$form-floating-line-height: 1.25;
+$form-floating-padding-x: $input-padding-x;
+$form-floating-padding-y: 1rem;
+$form-floating-input-padding-t: 1.625rem;
+$form-floating-input-padding-b: 0.625rem;
+$form-floating-label-height: 1.5rem;
+$form-floating-label-opacity: 0.65;
+$form-floating-label-transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+$form-floating-label-disabled-color: $zinc-400;
+$form-floating-transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+
+// =============================================================================
+// SECTION 15: Form Checkboxes & Radios
+// =============================================================================
+
+$form-check-input-width: 1rem;
+$form-check-min-height: $font-size-base * $line-height-base;
+$form-check-padding-start: $form-check-input-width + 0.5rem;
+$form-check-margin-bottom: 0.125rem;
+$form-check-label-color: $zinc-900;
+$form-check-label-cursor: null;
+$form-check-transition: all 0.15s ease-in-out;
+
+$form-check-input-active-filter: brightness(90%);
+$form-check-input-bg: $white;
+$form-check-input-border: 1px solid $zinc-300;
+$form-check-input-border-radius: 0.25rem;
+$form-check-radio-border-radius: 50%;
+$form-check-input-focus-border: $zinc-400;
+$form-check-input-focus-box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
+
+$form-check-input-checked-color: $white;
+$form-check-input-checked-bg-color: $zinc-900;
+$form-check-input-checked-border-color: $zinc-900;
+$form-check-input-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-checked-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/></svg>");
+$form-check-radio-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$form-check-input-checked-color}'/></svg>");
+
+$form-check-input-indeterminate-color: $white;
+$form-check-input-indeterminate-bg-color: $zinc-900;
+$form-check-input-indeterminate-border-color: $zinc-900;
+$form-check-input-indeterminate-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-indeterminate-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/></svg>");
+
+$form-check-input-disabled-opacity: 0.5;
+$form-check-label-disabled-opacity: 0.5;
+$form-check-btn-check-disabled-opacity: 0.65;
+
+// =============================================================================
+// SECTION 16: Form Switch
+// =============================================================================
+
+$form-switch-color: $zinc-400;
+$form-switch-width: 2.5rem;
+$form-switch-padding-start: $form-switch-width + 0.5rem;
+$form-switch-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-color}'/></svg>");
+$form-switch-border-radius: $form-switch-width;
+$form-switch-transition: background-position 0.15s ease-in-out;
+
+$form-switch-focus-color: $zinc-500;
+$form-switch-focus-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-focus-color}'/></svg>");
+
+$form-switch-checked-color: $white;
+$form-switch-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-checked-color}'/></svg>");
+$form-switch-checked-bg-position: right center;
+
+// =============================================================================
+// SECTION 17: Input Groups
+// =============================================================================
+
+$input-group-addon-padding-y: $input-padding-y;
+$input-group-addon-padding-x: $input-padding-x;
+$input-group-addon-font-weight: $input-font-weight;
+$input-group-addon-color: $zinc-600;
+$input-group-addon-bg: $zinc-50;
+$input-group-addon-border-color: $input-border-color;
+
+// =============================================================================
+// SECTION 18: Form Select
+// =============================================================================
+
+$form-select-padding-y: $input-padding-y;
+$form-select-padding-x: $input-padding-x;
+$form-select-font-family: $input-font-family;
+$form-select-font-size: $input-font-size;
+$form-select-indicator-padding: $form-select-padding-x * 3;
+$form-select-font-weight: $input-font-weight;
+$form-select-line-height: $input-line-height;
+$form-select-color: $input-color;
+$form-select-bg: $input-bg;
+$form-select-disabled-color: $zinc-500;
+$form-select-disabled-bg: $zinc-100;
+$form-select-disabled-border-color: $input-disabled-border-color;
+$form-select-bg-position: right $form-select-padding-x center;
+$form-select-bg-size: 16px 12px;
+$form-select-indicator-color: $zinc-600;
+$form-select-indicator: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='#{$form-select-indicator-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/></svg>");
+
+// Note: $form-select-feedback-icon-* variables use Bootstrap computed values
+// They are left to Bootstrap defaults
+
+$form-select-border-width: $input-border-width;
+$form-select-border-color: $input-border-color;
+$form-select-border-radius: $input-border-radius;
+$form-select-box-shadow: none;
+
+$form-select-focus-border-color: $input-focus-border-color;
+$form-select-focus-width: $input-focus-width;
+$form-select-focus-box-shadow: 0 0 0 $form-select-focus-width rgba($zinc-950, 0.1);
+
+$form-select-padding-y-sm: $input-padding-y-sm;
+$form-select-padding-x-sm: $input-padding-x-sm;
+$form-select-font-size-sm: $input-font-size-sm;
+$form-select-border-radius-sm: $input-border-radius-sm;
+
+$form-select-padding-y-lg: $input-padding-y-lg;
+$form-select-padding-x-lg: $input-padding-x-lg;
+$form-select-font-size-lg: $input-font-size-lg;
+$form-select-border-radius-lg: $input-border-radius-lg;
+
+// =============================================================================
+// SECTION 19: Form Range
+// =============================================================================
+
+$form-range-track-width: 100%;
+$form-range-track-height: 0.5rem;
+$form-range-track-cursor: pointer;
+$form-range-track-bg: $zinc-200;
+$form-range-track-border-radius: $border-radius-pill;
+$form-range-track-box-shadow: none;
+
+$form-range-thumb-width: 1rem;
+$form-range-thumb-height: $form-range-thumb-width;
+$form-range-thumb-bg: $zinc-900;
+$form-range-thumb-border: 0;
+$form-range-thumb-border-radius: $border-radius-pill;
+$form-range-thumb-box-shadow: 0 0.1rem 0.25rem rgba($black, 0.1);
+$form-range-thumb-focus-box-shadow: 0 0 0 2px rgba($zinc-950, 0.2);
+$form-range-thumb-focus-box-shadow-width: 0.25rem;
+$form-range-thumb-active-bg: $zinc-700;
+$form-range-thumb-disabled-bg: $zinc-400;
+$form-range-thumb-transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+// =============================================================================
+// SECTION 20: Form File
+// =============================================================================
+
+$form-file-button-color: $zinc-700;
+$form-file-button-bg: $zinc-100;
+$form-file-button-hover-bg: $zinc-200;
+
+// =============================================================================
+// SECTION 21: Form Validation
+// =============================================================================
+
+$form-feedback-margin-top: $form-text-margin-top;
+$form-feedback-font-size: $form-text-font-size;
+$form-feedback-font-style: $form-text-font-style;
+$form-feedback-valid-color: $success;
+$form-feedback-invalid-color: $danger;
+
+$form-feedback-icon-valid-color: $form-feedback-valid-color;
+$form-feedback-icon-valid: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path fill='#{$form-feedback-icon-valid-color}' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/></svg>");
+$form-feedback-icon-invalid-color: $form-feedback-invalid-color;
+$form-feedback-icon-invalid: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='#{$form-feedback-icon-invalid-color}'><circle cx='6' cy='6' r='4.5'/><path stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/><circle cx='6' cy='8.2' r='.6' fill='#{$form-feedback-icon-invalid-color}' stroke='none'/></svg>");
+
+// =============================================================================
+// SECTION 22: Navs & Tabs
+// =============================================================================
+
+$nav-link-padding-y: 0.5rem;
+$nav-link-padding-x: 1rem;
+$nav-link-font-size: 0.875rem;
+$nav-link-font-weight: 500;
+$nav-link-color: $zinc-600;
+$nav-link-hover-color: $zinc-900;
+$nav-link-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+$nav-link-disabled-color: $zinc-400;
+$nav-link-focus-box-shadow: none;
+
+$nav-tabs-border-color: $zinc-200;
+$nav-tabs-border-width: 1px;
+$nav-tabs-border-radius: $border-radius;
+$nav-tabs-link-hover-border-color: $zinc-200 $zinc-200 $nav-tabs-border-color;
+$nav-tabs-link-active-color: $zinc-900;
+$nav-tabs-link-active-bg: $white;
+$nav-tabs-link-active-border-color: $zinc-200 $zinc-200 $white;
+
+$nav-pills-border-radius: $border-radius;
+$nav-pills-link-active-color: $white;
+$nav-pills-link-active-bg: $zinc-900;
+
+$nav-underline-gap: 1rem;
+$nav-underline-border-width: 2px;
+$nav-underline-link-active-color: $zinc-900;
+
+// =============================================================================
+// SECTION 23: Navbar
+// =============================================================================
+
+$navbar-padding-y: 0.5rem;
+$navbar-padding-x: null;
+$navbar-nav-link-padding-x: 0.5rem;
+$navbar-brand-font-size: 1.25rem;
+$navbar-brand-margin-end: 1rem;
+$navbar-brand-padding-y: 0.25rem;
+
+$navbar-toggler-padding-y: 0.25rem;
+$navbar-toggler-padding-x: 0.5rem;
+$navbar-toggler-font-size: 1.25rem;
+$navbar-toggler-border-radius: $border-radius;
+$navbar-toggler-focus-width: 0;
+$navbar-toggler-transition: box-shadow 0.15s ease-in-out;
+
+$navbar-light-color: $zinc-700;
+$navbar-light-hover-color: $zinc-900;
+$navbar-light-active-color: $zinc-900;
+$navbar-light-disabled-color: $zinc-400;
+$navbar-light-icon-color: $zinc-600;
+$navbar-light-toggler-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-light-icon-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+$navbar-light-toggler-border-color: rgba($zinc-900, 0.1);
+$navbar-light-brand-color: $zinc-900;
+$navbar-light-brand-hover-color: $zinc-900;
+
+$navbar-dark-color: $zinc-300;
+$navbar-dark-hover-color: $zinc-50;
+$navbar-dark-active-color: $white;
+$navbar-dark-disabled-color: $zinc-500;
+$navbar-dark-icon-color: $zinc-400;
+$navbar-dark-toggler-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-dark-icon-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+$navbar-dark-toggler-border-color: rgba($white, 0.1);
+$navbar-dark-brand-color: $white;
+$navbar-dark-brand-hover-color: $white;
+
+// =============================================================================
+// SECTION 24: Dropdowns
+// =============================================================================
+
+$dropdown-min-width: 10rem;
+$dropdown-padding-x: 0;
+$dropdown-padding-y: 0.25rem;
+$dropdown-spacer: 0.125rem;
+$dropdown-font-size: 0.875rem;
+$dropdown-color: $zinc-900;
+$dropdown-bg: $white;
+$dropdown-border-color: $zinc-200;
+$dropdown-border-radius: $border-radius;
+$dropdown-border-width: 1px;
+$dropdown-inner-border-radius: calc($border-radius - 1px);
+$dropdown-divider-bg: $zinc-200;
+$dropdown-divider-margin-y: 0.25rem;
+$dropdown-box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+$dropdown-link-color: $zinc-900;
+$dropdown-link-hover-color: $zinc-900;
+$dropdown-link-hover-bg: $zinc-100;
+
+$dropdown-link-active-color: $zinc-900;
+$dropdown-link-active-bg: $zinc-100;
+
+$dropdown-link-disabled-color: $zinc-400;
+
+$dropdown-item-padding-y: 0.375rem;
+$dropdown-item-padding-x: 0.75rem;
+
+$dropdown-header-color: $zinc-500;
+$dropdown-header-padding-x: $dropdown-item-padding-x;
+$dropdown-header-padding-y: 0.25rem;
+
+// =============================================================================
+// SECTION 25: Pagination
+// =============================================================================
+
+$pagination-padding-y: 0.375rem;
+$pagination-padding-x: 0.75rem;
+$pagination-padding-y-sm: 0.25rem;
+$pagination-padding-x-sm: 0.5rem;
+$pagination-padding-y-lg: 0.5rem;
+$pagination-padding-x-lg: 1rem;
+
+$pagination-font-size: 0.875rem;
+
+$pagination-color: $zinc-700;
+$pagination-bg: $white;
+$pagination-border-width: 1px;
+$pagination-border-radius: $border-radius;
+$pagination-margin-start: 0;
+$pagination-border-color: $zinc-200;
+
+$pagination-focus-color: $zinc-900;
+$pagination-focus-bg: $zinc-100;
+$pagination-focus-box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
+$pagination-focus-outline: 0;
+
+$pagination-hover-color: $zinc-900;
+$pagination-hover-bg: $zinc-100;
+$pagination-hover-border-color: $zinc-300;
+
+$pagination-active-color: $white;
+$pagination-active-bg: $zinc-900;
+$pagination-active-border-color: $zinc-900;
+
+$pagination-disabled-color: $zinc-400;
+$pagination-disabled-bg: $white;
+$pagination-disabled-border-color: $zinc-200;
+
+$pagination-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+$pagination-border-radius-sm: $border-radius-sm;
+$pagination-border-radius-lg: $border-radius;
+
+// =============================================================================
+// SECTION 26: Cards
+// =============================================================================
+
+$card-spacer-y: 1rem;
+$card-spacer-x: 1rem;
+$card-title-spacer-y: 0.5rem;
+$card-title-color: null;
+$card-subtitle-color: $zinc-500;
+$card-border-width: 1px;
+$card-border-color: $zinc-200;
+$card-border-radius: $border-radius-lg;
+$card-box-shadow: null;
+$card-inner-border-radius: calc($card-border-radius - $card-border-width);
+$card-cap-padding-y: 0.75rem;
+$card-cap-padding-x: $card-spacer-x;
+$card-cap-bg: rgba($zinc-100, 0.5);
+$card-cap-color: null;
+$card-height: null;
+$card-color: null;
+$card-bg: $white;
+$card-img-overlay-padding: 1rem;
+$card-group-margin: 0.75rem;
+
+// =============================================================================
+// SECTION 27: Accordion
+// =============================================================================
+
+$accordion-padding-y: 1rem;
+$accordion-padding-x: 1.25rem;
+$accordion-color: $zinc-900;
+$accordion-bg: $white;
+$accordion-border-width: 1px;
+$accordion-border-color: $zinc-200;
+$accordion-border-radius: $border-radius;
+$accordion-inner-border-radius: calc($accordion-border-radius - $accordion-border-width);
+
+$accordion-body-padding-y: $accordion-padding-y;
+$accordion-body-padding-x: $accordion-padding-x;
+
+$accordion-button-padding-y: $accordion-padding-y;
+$accordion-button-padding-x: $accordion-padding-x;
+$accordion-button-color: $zinc-900;
+$accordion-button-bg: $accordion-bg;
+$accordion-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
+$accordion-button-active-bg: $zinc-100;
+$accordion-button-active-color: $zinc-900;
+
+$accordion-button-focus-border-color: $zinc-400;
+$accordion-button-focus-box-shadow: 0 0 0 2px rgba($zinc-950, 0.1);
+
+$accordion-icon-width: 1rem;
+$accordion-icon-color: $zinc-600;
+$accordion-icon-active-color: $zinc-900;
+$accordion-icon-transition: transform 0.2s ease-in-out;
+$accordion-icon-transform: rotate(-180deg);
+
+$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-active-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+
+// =============================================================================
+// SECTION 28: Tooltips
+// =============================================================================
+
+$tooltip-font-size: 0.75rem;
+$tooltip-max-width: 200px;
+$tooltip-color: $zinc-50;
+$tooltip-bg: $zinc-900;
+$tooltip-border-radius: $border-radius-sm;
+$tooltip-opacity: 1;
+$tooltip-padding-y: 0.25rem;
+$tooltip-padding-x: 0.5rem;
+$tooltip-margin: null;
+
+$tooltip-arrow-width: 0.5rem;
+$tooltip-arrow-height: 0.25rem;
+$tooltip-arrow-color: $tooltip-bg;
+
+// =============================================================================
+// SECTION 29: Popovers
+// =============================================================================
+
+$popover-font-size: 0.875rem;
+$popover-bg: $white;
+$popover-max-width: 276px;
+$popover-border-width: 1px;
+$popover-border-color: $zinc-200;
+$popover-border-radius: $border-radius;
+$popover-inner-border-radius: calc($popover-border-radius - $popover-border-width);
+$popover-box-shadow: $box-shadow-lg;
+
+$popover-header-font-size: 0.875rem;
+$popover-header-bg: $zinc-50;
+$popover-header-color: $zinc-900;
+$popover-header-padding-y: 0.5rem;
+$popover-header-padding-x: 0.75rem;
+
+$popover-body-color: $zinc-700;
+$popover-body-padding-y: 0.5rem;
+$popover-body-padding-x: 0.75rem;
+
+$popover-arrow-width: 0.5rem;
+$popover-arrow-height: 0.25rem;
+
+// =============================================================================
+// SECTION 30: Toasts
+// =============================================================================
+
+$toast-max-width: 350px;
+$toast-padding-x: 0.75rem;
+$toast-padding-y: 0.5rem;
+$toast-font-size: 0.875rem;
+$toast-color: null;
+$toast-background-color: rgba($white, 0.95);
+$toast-border-width: 1px;
+$toast-border-color: $zinc-200;
+$toast-border-radius: $border-radius;
+$toast-box-shadow: $box-shadow-lg;
+$toast-spacing: 1.5rem;
+
+$toast-header-color: $zinc-600;
+$toast-header-background-color: rgba($white, 0.95);
+$toast-header-border-color: $zinc-200;
+
+// =============================================================================
+// SECTION 31: Badges
+// =============================================================================
+
+$badge-font-size: 0.75rem;
+$badge-font-weight: 500;
+$badge-color: $white;
+$badge-padding-y: 0.25rem;
+$badge-padding-x: 0.5rem;
+$badge-border-radius: $border-radius-sm;
+
+// =============================================================================
+// SECTION 32: Modals
+// =============================================================================
+
+$modal-inner-padding: 1rem;
+
+$modal-footer-margin-between: 0.5rem;
+
+$modal-dialog-margin: 0.5rem;
+$modal-dialog-margin-y-sm-up: 1.75rem;
+
+$modal-title-line-height: 1.5;
+
+$modal-content-color: null;
+$modal-content-bg: $white;
+$modal-content-border-color: $zinc-200;
+$modal-content-border-width: 1px;
+$modal-content-border-radius: $border-radius-lg;
+$modal-content-inner-border-radius: calc($border-radius-lg - 1px);
+$modal-content-box-shadow-xs: $box-shadow;
+$modal-content-box-shadow-sm-up: $box-shadow-lg;
+
+$modal-backdrop-bg: $zinc-950;
+$modal-backdrop-opacity: 0.5;
+
+$modal-header-border-color: $zinc-200;
+$modal-header-border-width: 1px;
+$modal-header-padding-y: 1rem;
+$modal-header-padding-x: 1rem;
+$modal-header-padding: $modal-header-padding-y $modal-header-padding-x;
+
+$modal-footer-bg: null;
+$modal-footer-border-color: $zinc-200;
+$modal-footer-border-width: 1px;
+
+$modal-sm: 300px;
+$modal-md: 500px;
+$modal-lg: 800px;
+$modal-xl: 1140px;
+
+$modal-fade-transform: translate(0, -50px);
+$modal-show-transform: none;
+$modal-transition: transform 0.2s ease-out;
+$modal-scale-transform: scale(1.02);
+
+// =============================================================================
+// SECTION 33: Alerts
+// =============================================================================
+
+$alert-padding-y: 0.75rem;
+$alert-padding-x: 1rem;
+$alert-margin-bottom: 1rem;
+$alert-border-radius: $border-radius;
+$alert-link-font-weight: 600;
+$alert-border-width: 1px;
+$alert-dismissible-padding-r: $alert-padding-x * 3;
+
+// =============================================================================
+// SECTION 34: Progress
+// =============================================================================
+
+$progress-height: 0.5rem;
+$progress-font-size: 0.65625rem;
+$progress-bg: $zinc-200;
+$progress-border-radius: $border-radius-pill;
+$progress-box-shadow: none;
+$progress-bar-color: $white;
+$progress-bar-bg: $zinc-900;
+$progress-bar-animation-timing: 1s linear infinite;
+$progress-bar-transition: width 0.6s ease;
+
+// =============================================================================
+// SECTION 35: List Group
+// =============================================================================
+
+$list-group-color: $zinc-900;
+$list-group-bg: $white;
+$list-group-border-color: $zinc-200;
+$list-group-border-width: 1px;
+$list-group-border-radius: $border-radius;
+
+$list-group-item-padding-y: 0.75rem;
+$list-group-item-padding-x: 1rem;
+$list-group-item-bg-scale: -80%;
+$list-group-item-color-scale: 40%;
+
+$list-group-hover-bg: $zinc-50;
+$list-group-active-color: $white;
+$list-group-active-bg: $zinc-900;
+$list-group-active-border-color: $zinc-900;
+
+$list-group-disabled-color: $zinc-400;
+$list-group-disabled-bg: $list-group-bg;
+
+$list-group-action-color: $zinc-700;
+$list-group-action-hover-color: $zinc-900;
+
+$list-group-action-active-color: $zinc-900;
+$list-group-action-active-bg: $zinc-200;
+
+// =============================================================================
+// SECTION 36: Image Thumbnails
+// =============================================================================
+
+$thumbnail-padding: 0.25rem;
+$thumbnail-bg: $white;
+$thumbnail-border-width: 1px;
+$thumbnail-border-color: $zinc-200;
+$thumbnail-border-radius: $border-radius;
+$thumbnail-box-shadow: $box-shadow-sm;
+
+// =============================================================================
+// SECTION 37: Figures
+// =============================================================================
+
+$figure-caption-font-size: 0.75rem;
+$figure-caption-color: $zinc-500;
+
+// =============================================================================
+// SECTION 38: Breadcrumbs
+// =============================================================================
+
+$breadcrumb-font-size: 0.875rem;
+$breadcrumb-padding-y: 0;
+$breadcrumb-padding-x: 0;
+$breadcrumb-item-padding-x: 0.5rem;
+$breadcrumb-margin-bottom: 1rem;
+$breadcrumb-bg: null;
+$breadcrumb-divider-color: $zinc-400;
+$breadcrumb-active-color: $zinc-500;
+$breadcrumb-divider: quote("/");
+$breadcrumb-divider-flipped: $breadcrumb-divider;
+$breadcrumb-border-radius: null;
+
+// =============================================================================
+// SECTION 39: Carousel
+// =============================================================================
+
+$carousel-control-color: $white;
+$carousel-control-width: 15%;
+$carousel-control-opacity: 0.5;
+$carousel-control-hover-opacity: 0.9;
+$carousel-control-transition: opacity 0.15s ease;
+
+$carousel-indicator-width: 30px;
+$carousel-indicator-height: 3px;
+$carousel-indicator-hit-area-height: 10px;
+$carousel-indicator-spacer: 3px;
+$carousel-indicator-opacity: 0.5;
+$carousel-indicator-active-bg: $white;
+$carousel-indicator-active-opacity: 1;
+$carousel-indicator-transition: opacity 0.6s ease;
+
+$carousel-caption-width: 70%;
+$carousel-caption-color: $white;
+$carousel-caption-padding-y: 1.25rem;
+$carousel-caption-spacer: 1.25rem;
+
+$carousel-control-icon-width: 2rem;
+
+$carousel-transition-duration: 0.6s;
+
+// =============================================================================
+// SECTION 40: Spinners
+// =============================================================================
+
+$spinner-width: 2rem;
+$spinner-height: $spinner-width;
+$spinner-vertical-align: -0.125em;
+$spinner-border-width: 0.25em;
+$spinner-animation-speed: 0.75s;
+
+$spinner-width-sm: 1rem;
+$spinner-height-sm: $spinner-width-sm;
+$spinner-border-width-sm: 0.2em;
+
+// =============================================================================
+// SECTION 41: Close Button
+// =============================================================================
+
+$btn-close-width: 1em;
+$btn-close-height: $btn-close-width;
+$btn-close-padding-x: 0.25em;
+$btn-close-padding-y: $btn-close-padding-x;
+$btn-close-color: $zinc-900;
+$btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$btn-close-color}'><path d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/></svg>");
+$btn-close-focus-shadow: none;
+$btn-close-opacity: 0.5;
+$btn-close-hover-opacity: 0.75;
+$btn-close-focus-opacity: 1;
+$btn-close-disabled-opacity: 0.25;
+$btn-close-white-filter: invert(1) grayscale(100%) brightness(200%);
+
+// =============================================================================
+// SECTION 42: Offcanvas
+// =============================================================================
+
+$offcanvas-padding-y: 1rem;
+$offcanvas-padding-x: 1rem;
+$offcanvas-horizontal-width: 400px;
+$offcanvas-vertical-height: 30vh;
+$offcanvas-transition-duration: 0.3s;
+$offcanvas-border-color: $zinc-200;
+$offcanvas-border-width: 1px;
+$offcanvas-title-line-height: 1.5;
+$offcanvas-bg-color: $white;
+$offcanvas-color: $zinc-900;
+$offcanvas-box-shadow: $box-shadow-xl;
+$offcanvas-backdrop-bg: $zinc-950;
+$offcanvas-backdrop-opacity: 0.5;
+
+// =============================================================================
+// SECTION 43: Code
+// =============================================================================
+
+$code-font-size: 0.875em;
+$code-color: $violet-500;
+
+$kbd-padding-y: 0.1875rem;
+$kbd-padding-x: 0.375rem;
+$kbd-font-size: $code-font-size;
+$kbd-color: $zinc-50;
+$kbd-bg: $zinc-900;
+$nested-kbd-font-weight: 700;
+
+$pre-color: $zinc-900;
+
+// =============================================================================
+// SECTION 44: Tables
+// =============================================================================
+
+$table-cell-padding-y: 0.75rem;
+$table-cell-padding-x: 0.75rem;
+$table-cell-padding-y-sm: 0.5rem;
+$table-cell-padding-x-sm: 0.5rem;
+
+$table-cell-vertical-align: top;
+
+$table-color: $zinc-900;
+$table-bg: transparent;
+$table-accent-bg: transparent;
+
+$table-th-font-weight: 500;
+
+$table-striped-color: $table-color;
+$table-striped-bg-factor: 0.02;
+$table-striped-bg: $zinc-50;
+
+$table-active-color: $table-color;
+$table-active-bg-factor: 0.04;
+$table-active-bg: $zinc-100;
+
+$table-hover-color: $table-color;
+$table-hover-bg-factor: 0.03;
+$table-hover-bg: $zinc-50;
+
+$table-border-factor: 0.1;
+$table-border-width: 1px;
+$table-border-color: $zinc-200;
+
+$table-striped-order: odd;
+$table-striped-columns-order: even;
+
+$table-group-separator-color: $zinc-300;
+
+$table-caption-color: $zinc-500;
+
+$table-bg-scale: -80%;
+
+// =============================================================================
+// SECTION 45: Placeholders
+// =============================================================================
+
+$placeholder-opacity-max: 0.5;
+$placeholder-opacity-min: 0.2;
+
+// =============================================================================
+// CSS Custom Properties Export (shadcn/ui compatible)
+// =============================================================================
+:root {
+  // Zinc palette as CSS variables
+  --zinc-50: #{$zinc-50};
+  --zinc-100: #{$zinc-100};
+  --zinc-200: #{$zinc-200};
+  --zinc-300: #{$zinc-300};
+  --zinc-400: #{$zinc-400};
+  --zinc-500: #{$zinc-500};
+  --zinc-600: #{$zinc-600};
+  --zinc-700: #{$zinc-700};
+  --zinc-800: #{$zinc-800};
+  --zinc-900: #{$zinc-900};
+  --zinc-950: #{$zinc-950};
+
+  // shadcn/ui semantic tokens
+  --background: #{$zinc-50};
+  --foreground: #{$zinc-950};
+  --card: #{$white};
+  --card-foreground: #{$zinc-950};
+  --popover: #{$white};
+  --popover-foreground: #{$zinc-950};
+  --primary: #{$zinc-900};
+  --primary-foreground: #{$zinc-50};
+  --secondary: #{$zinc-100};
+  --secondary-foreground: #{$zinc-900};
+  --muted: #{$zinc-100};
+  --muted-foreground: #{$zinc-500};
+  --accent: #{$zinc-100};
+  --accent-foreground: #{$zinc-900};
+  --destructive: #{$red-500};
+  --destructive-foreground: #{$zinc-50};
+  --border: #{$zinc-200};
+  --input: #{$zinc-200};
+  --ring: #{$zinc-950};
+  --radius: #{$border-radius};
+
+  // Status colors
+  --success: #{$emerald-500};
+  --success-foreground: #{$white};
+  --warning: #{$amber-500};
+  --warning-foreground: #{$zinc-950};
+  --info: #{$blue-500};
+  --info-foreground: #{$white};
+}
+
+// Dark mode variables
+.dark {
+  --background: #{$zinc-950};
+  --foreground: #{$zinc-50};
+  --card: #{$zinc-900};
+  --card-foreground: #{$zinc-50};
+  --popover: #{$zinc-900};
+  --popover-foreground: #{$zinc-50};
+  --primary: #{$zinc-50};
+  --primary-foreground: #{$zinc-900};
+  --secondary: #{$zinc-800};
+  --secondary-foreground: #{$zinc-50};
+  --muted: #{$zinc-800};
+  --muted-foreground: #{$zinc-400};
+  --accent: #{$zinc-800};
+  --accent-foreground: #{$zinc-50};
+  --destructive: #{$red-500};
+  --destructive-foreground: #{$zinc-50};
+  --border: #{$zinc-800};
+  --input: #{$zinc-800};
+  --ring: #{$zinc-300};
+}

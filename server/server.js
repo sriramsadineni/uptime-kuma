@@ -741,6 +741,24 @@ let needSetup = false;
 
                 monitor.rabbitmqNodes = JSON.stringify(monitor.rabbitmqNodes);
 
+                // Health check entries (multi-entry health check)
+                if (monitor.healthCheckEntries) {
+                    monitor.health_check_entries = JSON.stringify(monitor.healthCheckEntries);
+                    delete monitor.healthCheckEntries;
+                }
+                if (monitor.healthEntriesPath !== undefined) {
+                    monitor.health_entries_path = monitor.healthEntriesPath;
+                    delete monitor.healthEntriesPath;
+                }
+                if (monitor.healthStatusField !== undefined) {
+                    monitor.health_status_field = monitor.healthStatusField;
+                    delete monitor.healthStatusField;
+                }
+                if (monitor.healthExpectedValue !== undefined) {
+                    monitor.health_expected_value = monitor.healthExpectedValue;
+                    delete monitor.healthExpectedValue;
+                }
+
                 /*
                  * List of frontend-only properties that should not be saved to the database.
                  * Should clean up before saving to the database.
@@ -925,6 +943,12 @@ let needSetup = false;
                 bean.system_service_name = monitor.system_service_name;
                 bean.expected_tls_alert = monitor.expectedTlsAlert;
 
+                // Health check entries (multi-entry health check)
+                bean.health_check_entries = monitor.healthCheckEntries ? JSON.stringify(monitor.healthCheckEntries) : null;
+                bean.health_entries_path = monitor.healthEntriesPath;
+                bean.health_status_field = monitor.healthStatusField;
+                bean.health_expected_value = monitor.healthExpectedValue;
+
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;
                 bean.ping_count = monitor.ping_count;
@@ -989,6 +1013,126 @@ let needSetup = false;
                 callback({
                     ok: true,
                     monitor: monitor.toJSON(preloadData),
+                });
+            } catch (e) {
+                callback({
+                    ok: false,
+                    msg: e.message,
+                });
+            }
+        });
+
+        // Fetch available entries from a health check endpoint
+        socket.on("fetchHealthEntries", async (options, callback) => {
+            try {
+                checkLogin(socket);
+
+                const { url, method, headers, entriesPath, statusField } = options;
+
+                if (!url) {
+                    throw new Error("URL is required");
+                }
+
+                log.info("monitor", `Fetching health entries from: ${url}`);
+
+                const axios = require("axios");
+
+                // Make the request
+                const response = await axios({
+                    url,
+                    method: method || "GET",
+                    headers: headers ? JSON.parse(headers) : {},
+                    timeout: 30000,
+                });
+
+                const data = response.data;
+                const path = entriesPath || "entries";
+                const statusFieldPath = statusField || "status";
+
+                // Parse the response to get entries
+                let parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+                // Get entries object using the configured path
+                let entriesObj = parsedData;
+                if (path) {
+                    const pathParts = path.split(".");
+                    for (const part of pathParts) {
+                        entriesObj = entriesObj?.[part];
+                    }
+                }
+
+                if (!entriesObj || typeof entriesObj !== "object") {
+                    throw new Error(`Could not find entries at path: ${path}`);
+                }
+
+                // Get entry keys and their statuses
+                const entries = [];
+                const statuses = {};
+
+                for (const key of Object.keys(entriesObj)) {
+                    entries.push(key);
+
+                    const entry = entriesObj[key];
+                    let status = entry;
+                    if (statusFieldPath) {
+                        const fieldParts = statusFieldPath.split(".");
+                        for (const part of fieldParts) {
+                            status = status?.[part];
+                        }
+                    }
+                    statuses[key] = status;
+                }
+
+                callback({
+                    ok: true,
+                    entries,
+                    statuses,
+                });
+            } catch (e) {
+                log.error("monitor", `Failed to fetch health entries: ${e.message}`);
+                callback({
+                    ok: false,
+                    msg: e.message,
+                });
+            }
+        });
+
+        // Get entry-level heartbeats for multi-entry health check monitors
+        socket.on("getEntryHeartbeats", async (monitorID, callback) => {
+            try {
+                checkLogin(socket);
+
+                log.info("monitor", `Get Entry Heartbeats: ${monitorID} User ID: ${socket.userID}`);
+
+                // Verify user owns this monitor
+                let monitor = await R.findOne("monitor", " id = ? AND user_id = ? ", [monitorID, socket.userID]);
+                if (!monitor) {
+                    throw new Error("Monitor not found");
+                }
+
+                // Get latest heartbeat for each entry
+                const entries = await R.getAll(`
+                    SELECT h1.entry_key, h1.status, h1.msg, h1.time, h1.ping
+                    FROM heartbeat h1
+                    INNER JOIN (
+                        SELECT entry_key, MAX(time) as max_time
+                        FROM heartbeat
+                        WHERE monitor_id = ? AND entry_key IS NOT NULL
+                        GROUP BY entry_key
+                    ) h2 ON h1.entry_key = h2.entry_key AND h1.time = h2.max_time
+                    WHERE h1.monitor_id = ?
+                    ORDER BY h1.entry_key
+                `, [monitorID, monitorID]);
+
+                callback({
+                    ok: true,
+                    entries: entries.map(e => ({
+                        key: e.entry_key,
+                        status: e.status,
+                        msg: e.msg,
+                        time: e.time,
+                        ping: e.ping,
+                    })),
                 });
             } catch (e) {
                 callback({

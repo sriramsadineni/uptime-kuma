@@ -11,6 +11,9 @@ import List from "./pages/List.vue";
 const Settings = () => import("./pages/Settings.vue");
 import Setup from "./pages/Setup.vue";
 import StatusPage from "./pages/StatusPage.vue";
+import PublicMonitorDetail from "./pages/PublicMonitorDetail.vue";
+import PublicIncidents from "./pages/PublicIncidents.vue";
+import PublicMaintenance from "./pages/PublicMaintenance.vue";
 import Entry from "./pages/Entry.vue";
 import ManageStatusPage from "./pages/ManageStatusPage.vue";
 import AddStatusPage from "./pages/AddStatusPage.vue";
@@ -180,6 +183,18 @@ const routes = [
     {
         path: "/status",
         component: StatusPage,
+    },
+    {
+        path: "/status/:slug/monitor/:id",
+        component: PublicMonitorDetail,
+    },
+    {
+        path: "/status/:slug/incidents",
+        component: PublicIncidents,
+    },
+    {
+        path: "/status/:slug/maintenance",
+        component: PublicMaintenance,
     },
     {
         path: "/status/:slug",

@@ -59,6 +59,85 @@ router.get("/api/status-page/:slug", cache("5 minutes"), async (request, respons
     }
 });
 
+// Public monitor detail (only if show_detail_view is enabled for this monitor on the status page)
+router.get("/api/status-page/:slug/monitor/:id", cache("1 minutes"), async (request, response) => {
+    allowDevAllOrigin(response);
+
+    try {
+        let slug = request.params.slug;
+        slug = slug.toLowerCase();
+        const monitorId = parseInt(request.params.id, 10);
+        if (isNaN(monitorId)) {
+            sendHttpError(response, "Invalid monitor ID");
+            return;
+        }
+
+        const statusPageID = await StatusPage.slugToID(slug);
+        if (!statusPageID) {
+            sendHttpError(response, "Status Page Not Found");
+            return;
+        }
+
+        // Verify monitor is on this status page with show_detail_view = 1
+        const relationRows = await R.getAll(
+            `
+            SELECT monitor_group.monitor_id, monitor_group.show_detail_view
+            FROM monitor_group, \`group\`
+            WHERE monitor_group.monitor_id = ?
+            AND monitor_group.group_id = \`group\`.id
+            AND \`group\`.status_page_id = ?
+            AND \`group\`.public = 1
+            `,
+            [monitorId, statusPageID]
+        );
+        const relation = relationRows[0];
+        if (!relation || !relation.show_detail_view) {
+            sendHttpError(response, "Monitor detail view is not enabled");
+            return;
+        }
+
+        const statusPage = await R.findOne("status_page", " id = ? ", [statusPageID]);
+        const config = await statusPage.toPublicJSON();
+        const showTags = !!statusPage.show_tags;
+
+        const monitorBean = await R.findOne("monitor", " id = ? ", [monitorId]);
+        if (!monitorBean) {
+            sendHttpError(response, "Monitor Not Found");
+            return;
+        }
+        monitorBean.show_detail_view = true;
+        const monitor = await monitorBean.toPublicJSON(showTags, config?.showCertificateExpiry);
+
+        const heartbeatRows = await R.getAll(
+            `
+            SELECT * FROM heartbeat
+            WHERE monitor_id = ? AND (entry_key IS NULL OR entry_key = '')
+            ORDER BY time DESC
+            LIMIT 100
+            `,
+            [monitorId]
+        );
+        const heartbeatBeans = R.convertToBeans("heartbeat", heartbeatRows);
+        const heartbeatList = { [monitorId]: heartbeatBeans.reverse().map((row) => row.toPublicJSON()) };
+
+        const uptimeCalculator = await UptimeCalculator.getUptimeCalculator(monitorId);
+        const uptimeList = {
+            [monitorId + "_24"]: uptimeCalculator.get24Hour().uptime,
+            [monitorId + "_720"]: uptimeCalculator.get30Day().uptime,
+            [monitorId + "_1y"]: uptimeCalculator.get1Year().uptime,
+        };
+
+        response.json({
+            config,
+            monitor,
+            heartbeatList,
+            uptimeList,
+        });
+    } catch (error) {
+        sendHttpError(response, error.message);
+    }
+});
+
 // Status Page Polling Data
 // Can fetch only if published
 router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (request, response) => {
@@ -86,7 +165,7 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
             let list = await R.getAll(
                 `
                     SELECT * FROM heartbeat
-                    WHERE monitor_id = ?
+                    WHERE monitor_id = ? AND (entry_key IS NULL OR entry_key = '')
                     ORDER BY time DESC
                     LIMIT 100
             `,

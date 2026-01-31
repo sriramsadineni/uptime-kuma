@@ -26,6 +26,28 @@
                         </div>
                     </div>
 
+                    <div class="my-3 form-check">
+                        <input
+                            id="show-detail-view"
+                            v-model="monitor.showDetailView"
+                            :disabled="!monitor.isClickAble"
+                            class="form-check-input"
+                            type="checkbox"
+                            data-testid="show-detail-view"
+                            @click="toggleShowDetailView(monitor.group_index, monitor.monitor_index)"
+                        />
+                        <label
+                            class="form-check-label"
+                            for="show-detail-view"
+                            :class="{ 'text-muted': !monitor.isClickAble }"
+                        >
+                            {{ $t("Enable detail view") }}
+                        </label>
+                        <div class="form-text">
+                            {{ $t("Enable detail view Description") }}
+                        </div>
+                    </div>
+
                     <!-- Custom URL -->
                     <template v-if="monitor.isClickAble">
                         <label for="customUrl" class="form-label">{{ $t("Custom URL") }}</label>
@@ -108,6 +130,7 @@ export default {
                 group_index: group.index,
                 isClickAble: this.showLink(monitor),
                 url: monitor.element.url,
+                showDetailView: !!monitor.element.showDetailView,
             };
 
             this.MonitorSettingDialog.show();
@@ -120,8 +143,22 @@ export default {
          * @returns {void}
          */
         toggleLink(groupIndex, index) {
-            this.$root.publicGroupList[groupIndex].monitorList[index].sendUrl =
-                !this.$root.publicGroupList[groupIndex].monitorList[index].sendUrl;
+            const list = this.$root.publicGroupList[groupIndex]?.monitorList;
+            if (!list || !list[index]) {
+                return;
+            }
+            const monitor = list[index];
+            monitor.sendUrl = !monitor.sendUrl;
+            // When turning off clickable link, also turn off detail view (detail view requires a link)
+            if (!monitor.sendUrl) {
+                monitor.showDetailView = false;
+            }
+        },
+
+        toggleShowDetailView(groupIndex, index) {
+            const list = this.$root.publicGroupList[groupIndex]?.monitorList;
+            if (!list || !list[index]) return;
+            list[index].showDetailView = !list[index].showDetailView;
         },
 
         /**

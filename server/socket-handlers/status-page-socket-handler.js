@@ -290,6 +290,7 @@ module.exports.statusPageSocketHandler = (socket) => {
     // imgDataUrl Only Accept PNG!
     socket.on("saveStatusPage", async (slug, config, imgDataUrl, publicGroupList, callback) => {
         try {
+            log.debug("socket", "saveStatusPage payload", JSON.stringify(publicGroupList, null, 2));
             checkLogin(socket);
 
             // Save Config
@@ -385,6 +386,10 @@ module.exports.statusPageSocketHandler = (socket) => {
                         relationBean.custom_url = monitor.url;
                     }
 
+                    if (monitor.showDetailView !== undefined || monitor.show_detail_view !== undefined) {
+                        relationBean.show_detail_view = !!(monitor.showDetailView ?? monitor.show_detail_view);
+                    }
+
                     await R.store(relationBean);
                 }
 
@@ -413,9 +418,12 @@ module.exports.statusPageSocketHandler = (socket) => {
 
             apicache.clear();
 
+            // Return freshly loaded data so client has persisted state (including show_detail_view)
+            const statusPageData = await StatusPage.getStatusPageData(statusPage);
+
             callback({
                 ok: true,
-                publicGroupList,
+                publicGroupList: statusPageData.publicGroupList,
             });
         } catch (error) {
             log.error("socket", error);

@@ -42,6 +42,7 @@
 import dayjs from "dayjs";
 import { DOWN, UP, PENDING, MAINTENANCE } from "../util.ts";
 import Tooltip from "./Tooltip.vue";
+import { log } from "../util.ts";
 
 export default {
     components: {
@@ -53,12 +54,12 @@ export default {
             type: String,
             default: "big",
         },
-        /** ID of the monitor */
+        /** ID of the monitor (required if heartbeatList is not provided) */
         monitorId: {
             type: Number,
-            required: true,
+            default: null,
         },
-        /** Array of the monitors heartbeats */
+        /** Array of the monitors heartbeats (if provided, monitorId is optional) */
         heartbeatList: {
             type: Array,
             default: null,
@@ -71,8 +72,8 @@ export default {
     },
     data() {
         return {
-            beatWidth: 10,
-            beatHeight: 30,
+            beatWidth: 8,
+            beatHeight: 40,
             hoverScale: 1.5,
             beatHoverAreaPadding: 4,
             move: false,
@@ -102,10 +103,12 @@ export default {
          * @returns {object} Heartbeat list
          */
         beatList() {
-            if (this.heartbeatList === null) {
+            if (this.heartbeatList !== null) {
+                return this.heartbeatList;
+            } else if (this.monitorId !== null) {
                 return this.$root.heartbeatList[this.monitorId];
             } else {
-                return this.heartbeatList;
+                return [];
             }
         },
 
@@ -137,6 +140,13 @@ export default {
         },
 
         shortBeatList() {
+            log.debug("shortBeatList", this.monitorId, this.beatList);
+            // Entry bar (no monitorId, uses heartbeatList prop): show placeholders when empty so entry bars match main bar width
+            if (this.monitorId === null && (!this.beatList || this.beatList.length === 0)) {
+                const len = this.maxBeat > 0 ? this.maxBeat : 96;
+                return Array(len).fill(0);
+            }
+
             if (!this.beatList) {
                 return [];
             }
@@ -332,7 +342,7 @@ export default {
         }
     },
     beforeMount() {
-        if (this.heartbeatList === null) {
+        if (this.heartbeatList === null && this.monitorId !== null) {
             if (!(this.monitorId in this.$root.heartbeatList)) {
                 this.$root.heartbeatList[this.monitorId] = [];
             }
@@ -557,14 +567,13 @@ export default {
             const centerY = this.canvasHeight / 2;
 
             // Cache CSS colors once per redraw
-            const rootStyles = getComputedStyle(document.documentElement);
             const canvasStyles = getComputedStyle(canvas.parentElement);
             const colors = {
-                empty: canvasStyles.getPropertyValue("--beat-empty-color") || "#f0f8ff",
-                down: rootStyles.getPropertyValue("--bs-danger") || "#dc3545",
-                pending: rootStyles.getPropertyValue("--bs-warning") || "#ffc107",
-                maintenance: rootStyles.getPropertyValue("--maintenance") || "#1d4ed8",
-                up: rootStyles.getPropertyValue("--bs-primary") || "#5cdd8b",
+                empty: canvasStyles.getPropertyValue("--beat-empty-color") || "#e4e4e7",
+                down: "#ef4444",      // red-500
+                pending: "#f59e0b",   // amber-500
+                maintenance: "#3b82f6", // blue-500
+                up: "#10b981",        // emerald-500
             };
 
             // Draw each beat
@@ -586,7 +595,7 @@ export default {
                 }
 
                 // Calculate border radius based on current width (pill shape = half of width)
-                const borderRadius = width / 2;
+                const borderRadius = width / 2.5;
 
                 // Get color based on beat status
                 let color = this.getBeatColor(beat, colors);
@@ -822,10 +831,10 @@ export default {
 }
 
 .hp-bar-big {
-    --beat-empty-color: #f0f8ff;
+    --beat-empty-color: #{$zinc-200};
 
     .dark & {
-        --beat-empty-color: #848484;
+        --beat-empty-color: #{$zinc-700};
     }
 
     .heartbeat-canvas {
@@ -835,20 +844,20 @@ export default {
 }
 
 .word {
-    color: $secondary-text;
-    font-size: 12px;
+    color: $zinc-500;
+    font-size: 0.75rem;
 }
 
 .connecting-line {
     flex-grow: 1;
     height: 1px;
-    background-color: #ededed;
+    background-color: $zinc-200;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 2px;
 
     .dark & {
-        background-color: #333;
+        background-color: $zinc-700;
     }
 }
 </style>

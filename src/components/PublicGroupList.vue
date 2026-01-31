@@ -2,9 +2,9 @@
     <!-- Group List -->
     <Draggable v-model="$root.publicGroupList" :disabled="!editMode" item-key="id" :animation="100">
         <template #item="group">
-            <div class="mb-5" data-testid="group">
-                <!-- Group Title -->
-                <h2 class="group-title">
+            <div class="group-card mb-4" data-testid="group">
+                <!-- Group Header -->
+                <div class="group-header">
                     <div class="title-section">
                         <font-awesome-icon
                             v-if="editMode && showGroupDrag"
@@ -21,6 +21,7 @@
                             v-model="group.element.name"
                             :contenteditable="editMode"
                             tag="span"
+                            class="group-name"
                             data-testid="group-name"
                         />
                     </div>
@@ -31,9 +32,10 @@
                         :show-certificate-expiry="showCertificateExpiry"
                         @update-group="updateGroup"
                     />
-                </h2>
+                </div>
 
-                <div class="shadow-box monitor-list mt-4 position-relative">
+                <!-- Group Body -->
+                <div class="group-body position-relative">
                     <div v-if="group.element.monitorList.length === 0" class="text-center no-monitor-msg">
                         {{ $t("No Monitors") }}
                     </div>
@@ -49,10 +51,24 @@
                         item-key="id"
                     >
                         <template #item="monitor">
-                            <div class="item" data-testid="monitor">
-                                <div class="row">
+                            <div
+                                class="item"
+                                :class="{ 'has-entries': hasEntries(monitor.element), 'entries-expanded': isEntriesExpanded(monitor.element.id) }"
+                                data-testid="monitor"
+                            >
+                                <div
+                                    class="row monitor-header"
+                                    :class="{ 'clickable': hasEntries(monitor.element) }"
+                                    @click="hasEntries(monitor.element) ? toggleEntries(monitor.element.id) : null"
+                                >
                                     <div class="col-9 col-xl-6 small-padding">
                                         <div class="info">
+                                            <!-- Expand/collapse icon for monitors with entries -->
+                                            <font-awesome-icon
+                                                v-if="hasEntries(monitor.element)"
+                                                :icon="isEntriesExpanded(monitor.element.id) ? 'chevron-down' : 'chevron-right'"
+                                                class="expand-icon me-2"
+                                            />
                                             <font-awesome-icon
                                                 v-if="editMode"
                                                 icon="arrows-alt-v"
@@ -62,7 +78,7 @@
                                                 v-if="editMode"
                                                 icon="times"
                                                 class="action remove me-3"
-                                                @click="removeMonitor(group.index, monitor.index)"
+                                                @click.stop="removeMonitor(group.index, monitor.index)"
                                             />
 
                                             <font-awesome-icon
@@ -71,26 +87,51 @@
                                                 class="action me-3 ms-0"
                                                 :class="{ 'link-active': true, 'btn-link': true }"
                                                 data-testid="monitor-settings"
-                                                @click="$refs.monitorSettingDialog.show(group, monitor)"
+                                                @click.stop="$refs.monitorSettingDialog.show(group, monitor)"
                                             />
                                             <Status
                                                 v-if="showOnlyLastHeartbeat"
                                                 :status="statusOfLastHeartbeat(monitor.element.id)"
                                             />
-                                            <Uptime v-else :monitor="monitor.element" type="24" :pill="true" />
+                                            <!-- Both clickable link + detail view → link to detail page -->
                                             <a
-                                                v-if="showLink(monitor)"
+                                                v-if="slug && showLink(monitor) && monitor.element.showDetailView && !editMode"
+                                                :href="detailViewHref(monitor.element.id)"
+                                                class="item-name"
+                                                data-testid="monitor-name"
+                                            >
+                                                {{ monitor.element.name }}
+                                            </a>
+                                            <!-- Clickable link only (no detail view) → external URL -->
+                                            <a
+                                                v-else-if="showLink(monitor)"
                                                 :href="monitor.element.url"
                                                 class="item-name"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 data-testid="monitor-name"
+                                                @click.stop
                                             >
                                                 {{ monitor.element.name }}
                                             </a>
+                                            <!-- No clickable link → plain text (detail view is disabled when no link) -->
                                             <p v-else class="item-name" data-testid="monitor-name">
                                                 {{ monitor.element.name }}
                                             </p>
+                                            <Uptime
+                                                v-if="!showOnlyLastHeartbeat"
+                                                :monitor="monitor.element"
+                                                type="24"
+                                                :pill="true"
+                                                class="main-uptime-pill"
+                                            />
+                                            <!-- Entry count badge -->
+                                            <span
+                                                v-if="hasEntries(monitor.element)"
+                                                class="entries-badge"
+                                            >
+                                                {{ monitor.element.healthCheckEntries.length }}
+                                            </span>
                                         </div>
                                         <div class="extra-info">
                                             <div
@@ -116,8 +157,49 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div :key="$root.userHeartbeatBar" class="col-3 col-xl-6">
+                                    <div :key="$root.userHeartbeatBar" class="col-3 col-xl-6 bar-column">
                                         <HeartbeatBar size="mid" :monitor-id="monitor.element.id" />
+                                    </div>
+                                </div>
+
+                                <!-- Health Check Entries (collapsible) -->
+                                <div
+                                    v-if="hasEntries(monitor.element)"
+                                    v-show="isEntriesExpanded(monitor.element.id)"
+                                    class="health-entries-list"
+                                >
+                                    <div
+                                        v-for="entry in monitor.element.healthCheckEntries"
+                                        :key="entry.key"
+                                        class="health-entry-row row"
+                                    >
+                                        <div class="col-9 col-xl-6 small-padding">
+                                            <div class="entry-info">
+                                                <span
+                                                    class="entry-dot"
+                                                    :class="{
+                                                        'dot-up': entry.status === 1,
+                                                        'dot-down': entry.status === 0,
+                                                        'dot-pending': entry.status === 2 || entry.status === null
+                                                    }"
+                                                ></span>
+                                                <span class="entry-name">{{ entry.key }}</span>
+                                                <span
+                                                    v-if="entryUptimePercent(entry) !== null"
+                                                    class="badge rounded-pill entry-uptime-pill"
+                                                    :class="entryUptimePillClass(entry)"
+                                                    :title="$t('hours', 24)"
+                                                >
+                                                    {{ entryUptimePercent(entry) }}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 col-xl-6 bar-column">
+                                            <HeartbeatBar
+                                                size="mid"
+                                                :heartbeat-list="entry.beats"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -155,6 +237,11 @@ export default {
             type: Boolean,
             required: true,
         },
+        /** Status page slug (for detail view link) */
+        slug: {
+            type: String,
+            default: null,
+        },
         /** Should tags be shown? */
         showTags: {
             type: Boolean,
@@ -169,7 +256,9 @@ export default {
         },
     },
     data() {
-        return {};
+        return {
+            expandedEntries: {},
+        };
     },
     computed: {
         showGroupDrag() {
@@ -183,6 +272,73 @@ export default {
         // Sorting is now handled by GroupSortDropdown component
     },
     methods: {
+        /**
+         * Check if monitor has health check entries
+         * @param {object} monitor Monitor to check
+         * @returns {boolean} Has entries
+         */
+        hasEntries(monitor) {
+            return monitor.healthCheckEntries && monitor.healthCheckEntries.length > 0;
+        },
+
+        /**
+         * Toggle visibility of health check entries for a monitor
+         * @param {number} monitorId ID of monitor to toggle
+         * @returns {void}
+         */
+        toggleEntries(monitorId) {
+            this.expandedEntries[monitorId] = !this.expandedEntries[monitorId];
+        },
+
+        /**
+         * Check if entries are expanded for a monitor
+         * @param {number} monitorId ID of monitor to check
+         * @returns {boolean} Are entries expanded
+         */
+        isEntriesExpanded(monitorId) {
+            return this.expandedEntries[monitorId] === true;
+        },
+
+        /**
+         * Link to public monitor detail page
+         * @param {number} monitorId Monitor ID
+         * @returns {string} URL path
+         */
+        detailViewHref(monitorId) {
+            const s = this.slug || "default";
+            return "/status/" + encodeURIComponent(s) + "/monitor/" + monitorId;
+        },
+
+        /**
+         * Compute uptime percentage from entry beats (same logic as main monitor)
+         * @param {object} entry Entry with beats array
+         * @returns {string|null} e.g. "100" or "99.5", or null if no beats
+         */
+        entryUptimePercent(entry) {
+            const beats = entry.beats;
+            if (!beats || beats.length === 0) {
+                return null;
+            }
+            const up = beats.filter((b) => b.status === 1).length;
+            const pct = Math.round((up / beats.length) * 10000) / 100;
+            return String(pct);
+        },
+
+        /**
+         * Pill class for entry uptime (success/danger/warning like main Uptime component)
+         * @param {object} entry Entry with status and beats
+         * @returns {string} Bootstrap badge class
+         */
+        entryUptimePillClass(entry) {
+            if (entry.status === 0) {
+                return "pill-danger";
+            }
+            if (entry.status === 2 || entry.status === null) {
+                return "pill-warning";
+            }
+            return "pill-success";
+        },
+
         /**
          * Remove the specified group
          * @param {number} index Index of group to remove
@@ -310,15 +466,76 @@ export default {
     left: 0;
 }
 
+// Group Card - like maintenance page
+.group-card {
+    background: white;
+    border: 1px solid $zinc-100;
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    .dark & {
+        background: $dark-bg;
+        border-color: $dark-border-color;
+    }
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid $zinc-100;
+
+    .dark & {
+        border-bottom-color: $dark-border-color;
+    }
+}
+
+.group-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $zinc-800;
+
+    .dark & {
+        color: $zinc-200;
+    }
+}
+
+.group-body {
+    padding: 0.75rem;
+}
+
 .monitor-list {
-    min-height: 46px;
+    min-height: 36px;
+}
+
+// Compact monitor items
+.item {
+    padding: 0.625rem 0.75rem;
+    background: $zinc-50;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    .dark & {
+        background: $zinc-800;
+    }
+}
+
+.monitor-header .row {
+    --bs-gutter-y: 0;
 }
 
 .item-name {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 4px;
+    padding-right: 4px;
     margin: 0;
     display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 500;
 }
 
 .btn-link {
@@ -347,20 +564,9 @@ export default {
     color: $danger;
 }
 
-.group-title {
+.title-section {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-
-    .title-section {
-        display: flex;
-        align-items: center;
-    }
-
-    span {
-        display: inline-block;
-        min-width: 15px;
-    }
 }
 
 .mobile {
@@ -368,9 +574,162 @@ export default {
         padding: 13px 0 10px;
     }
 
-    .group-title {
+    .group-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+// Health Check Entries
+.bar-column {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.main-uptime-pill {
+    flex-shrink: 0;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    &.bg-success {
+        background: rgba($emerald-500, 0.1) !important;
+        color: $emerald-500 !important;
+    }
+
+    &.bg-warning {
+        background: rgba($warning, 0.1) !important;
+        color: $warning !important;
+    }
+
+    &.bg-danger {
+        background: rgba($danger, 0.1) !important;
+        color: $danger !important;
+    }
+
+    &.bg-maintenance {
+        background: rgba($maintenance, 0.1) !important;
+        color: $maintenance !important;
+    }
+
+    &.bg-secondary {
+        background: rgba($zinc-500, 0.1) !important;
+        color: $zinc-500 !important;
+    }
+}
+
+.monitor-header {
+    &.clickable {
+        cursor: pointer;
+        
+        &:hover {
+            background: rgba($zinc-500, 0.03);
+        }
+
+        .dark &:hover {
+            background: rgba($zinc-400, 0.05);
+        }
+    }
+}
+
+.expand-icon {
+    width: 0.75rem;
+    font-size: 0.625rem;
+    color: $zinc-400;
+    transition: transform 0.15s;
+
+    .dark & {
+        color: $zinc-500;
+    }
+}
+
+.entries-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.25rem;
+    margin-left: 0.375rem;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    color: $zinc-500;
+    background: $zinc-100;
+    border-radius: 999px;
+
+    .dark & {
+        color: $zinc-400;
+        background: $zinc-800;
+    }
+}
+
+.health-entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0 0.25rem 0;
+    margin-top: 0.375rem;
+    border-top: 1px solid $zinc-50;
+
+    .dark & {
+        border-top-color: $zinc-800;
+    }
+}
+
+.health-entry-row {
+    align-items: center;
+    padding: 0.25rem 0;
+
+    .entry-info {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .entry-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &.dot-up { background: #10b981; }
+        &.dot-down { background: #ef4444; }
+        &.dot-pending { background: $zinc-400; }
+    }
+
+    .entry-name {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: $zinc-600;
+
+        .dark & {
+            color: $zinc-400;
+        }
+    }
+
+    .entry-uptime-pill {
+        font-size: 0.5625rem;
+        font-weight: 600;
+        padding: 0.125rem 0.375rem;
+        min-width: 36px;
+        letter-spacing: 0.02em;
+
+        &.pill-success {
+            background: rgba($emerald-500, 0.1);
+            color: $emerald-500;
+        }
+
+        &.pill-warning {
+            background: rgba($warning, 0.1);
+            color: $warning;
+        }
+
+        &.pill-danger {
+            background: rgba($danger, 0.1);
+            color: $danger;
+        }
     }
 }
 
