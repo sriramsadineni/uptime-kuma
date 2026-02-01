@@ -29,6 +29,8 @@ class Incident extends BeanModel {
             createdDate: this.created_date,
             lastUpdatedDate: this.last_updated_date,
             status_page_id: this.status_page_id,
+            affectedMonitors: this.affected_monitors || "",
+            affectedAreas: this.affected_areas || "",
         };
     }
 }

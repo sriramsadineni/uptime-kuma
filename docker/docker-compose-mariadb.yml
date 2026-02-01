@@ -1,0 +1,26 @@
+# MariaDB for Uptime Kuma app database (external DB).
+# Run: docker compose -f docker/docker-compose-mariadb.yml up -d
+# Then start Uptime Kuma with .env (UPTIME_KUMA_DB_*). App connects to 127.0.0.1:3306.
+
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: uptime-kuma-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root_dev_password
+      MARIADB_DATABASE: kumadb
+      MARIADB_USER: kuma
+      MARIADB_PASSWORD: kuma_dev_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mariadb_data:

@@ -59,6 +59,8 @@ module.exports.statusPageSocketHandler = (socket) => {
             incidentBean.pin = true;
             incidentBean.active = true;
             incidentBean.status_page_id = statusPageID;
+            incidentBean.affected_monitors = (incident.affectedMonitors || "").trim() || null;
+            incidentBean.affected_areas = (incident.affectedAreas || "").trim() || null;
 
             if (incident.id) {
                 incidentBean.last_updated_date = R.isoDateTime(dayjs.utc());
@@ -164,7 +166,9 @@ module.exports.statusPageSocketHandler = (socket) => {
             bean.content = incident.content;
             bean.style = incident.style;
             bean.pin = incident.pin !== false;
-            bean.lastUpdatedDate = R.isoDateTime(dayjs.utc());
+            bean.last_updated_date = R.isoDateTime(dayjs.utc());
+            bean.affected_monitors = (incident.affectedMonitors || "").trim() || null;
+            bean.affected_areas = (incident.affectedAreas || "").trim() || null;
 
             await R.store(bean);
 

@@ -341,6 +341,7 @@
                     (!incident.id || !activeIncidents.some((i) => i.id === incident.id))
                 "
                 v-model="incident"
+                :monitors="statusPageMonitors"
                 @post="postIncident"
                 @cancel="cancelIncident"
             />
@@ -351,6 +352,7 @@
                 <IncidentEditForm
                     v-if="editIncidentMode && incident !== null && incident.id === activeIncident.id"
                     v-model="incident"
+                    :monitors="statusPageMonitors"
                     @post="postIncident"
                     @cancel="cancelIncident"
                 />
@@ -380,6 +382,11 @@
                         <span>{{ dateFromNow(activeIncident.createdDate) }}</span>
                         <span v-if="activeIncident.lastUpdatedDate" class="text-muted">
                             · Updated {{ dateFromNow(activeIncident.lastUpdatedDate) }}
+                        </span>
+                    </div>
+                    <div v-if="activeIncident.affectedAreas && activeIncident.affectedAreas.trim()" class="incident-affected mt-2">
+                        <span class="incident-affected-item">
+                            {{ $t("Affected Areas") }}: {{ activeIncident.affectedAreas }}
                         </span>
                     </div>
 
@@ -574,6 +581,7 @@
                 v-if="enableEditMode"
                 ref="incidentManageModal"
                 :slug="slug"
+                :monitors="statusPageMonitors"
                 @incident-updated="loadIncidentHistory"
             />
 
@@ -818,6 +826,22 @@ export default {
 
         editIncidentMode() {
             return this.enableEditIncidentMode;
+        },
+
+        statusPageMonitors() {
+            const list = this.$root.publicGroupList || [];
+            const monitors = [];
+            for (const group of list) {
+                const monitorList = group.monitorList || group.element?.monitorList || [];
+                for (const m of monitorList) {
+                    const id = m.id ?? m.element?.id;
+                    const name = m.name ?? m.element?.name;
+                    if (id != null && name != null && !monitors.some((x) => x.id === id)) {
+                        monitors.push({ id, name: String(name) });
+                    }
+                }
+            }
+            return monitors;
         },
 
         isPublished() {
@@ -1355,6 +1379,8 @@ export default {
                 title: "",
                 content: "",
                 style: "primary",
+                affectedMonitors: "",
+                affectedAreas: "",
             };
         },
 
@@ -1789,6 +1815,19 @@ h1 {
     .incident-meta {
         font-size: 0.75rem;
         color: $zinc-500;
+    }
+
+    .incident-affected {
+        font-size: 0.75rem;
+        color: $zinc-500;
+    }
+
+    .incident-affected-item {
+        display: block;
+
+        & + .incident-affected-item {
+            margin-top: 0.125rem;
+        }
     }
 
     .incident-actions {

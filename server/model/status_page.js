@@ -315,7 +315,12 @@ class StatusPage extends BeanModel {
             " pin = 1 AND active = 1 AND status_page_id = ? ORDER BY created_date DESC",
             [statusPage.id]
         );
-        incidents = incidents.map((i) => i.toPublicJSON());
+        const monitorIdToName = await StatusPage.getMonitorIdToNameForStatusPage(statusPage.id);
+        incidents = incidents.map((i) => {
+            const json = i.toPublicJSON();
+            StatusPage.resolveAffectedMonitorNames(json, monitorIdToName);
+            return json;
+        });
 
         let maintenanceList = await StatusPage.getMaintenanceList(statusPage.id);
 
@@ -503,6 +508,47 @@ class StatusPage extends BeanModel {
     }
 
     /**
+     * Get monitor id -> name map for monitors on a status page
+     * @param {number} statusPageId ID of the status page
+     * @returns {Promise<object>} Map of monitor id (string) -> name
+     */
+    static async getMonitorIdToNameForStatusPage(statusPageId) {
+        const map = {};
+        try {
+            const rows = await R.getAll(
+                `
+                SELECT monitor.id, monitor.name
+                FROM monitor, monitor_group, \`group\`
+                WHERE monitor.id = monitor_group.monitor_id
+                AND monitor_group.group_id = \`group\`.id
+                AND \`group\`.status_page_id = ?
+                `,
+                [statusPageId]
+            );
+            for (const row of rows) {
+                map[String(row.id)] = row.name || "";
+            }
+        } catch (_) {
+            // ignore
+        }
+        return map;
+    }
+
+    /**
+     * Add affectedMonitorNames to incident JSON (resolve IDs to names; backward compat: keep legacy names)
+     * @param {object} json Incident toPublicJSON result
+     * @param {object} monitorIdToName Map of monitor id (string) -> name
+     */
+    static resolveAffectedMonitorNames(json, monitorIdToName) {
+        if (!json.affectedMonitors || typeof json.affectedMonitors !== "string") {
+            return;
+        }
+        const ids = json.affectedMonitors.split(",").map((s) => s.trim()).filter(Boolean);
+        const names = ids.map((id) => monitorIdToName[id]).filter(Boolean);
+        json.affectedMonitorNames = names.length > 0 ? names.join(", ") : json.affectedMonitors;
+    }
+
+    /**
      * Get paginated incident history for a status page using cursor-based pagination
      * @param {number} statusPageId ID of the status page
      * @param {string|null} cursor ISO date string cursor (created_date of last item from previous page)
@@ -542,8 +588,15 @@ class StatusPage extends BeanModel {
             }
         }
 
+        const monitorIdToName = await StatusPage.getMonitorIdToNameForStatusPage(statusPageId);
+        const incidentsJson = incidents.map((i) => {
+            const json = i.toPublicJSON();
+            StatusPage.resolveAffectedMonitorNames(json, monitorIdToName);
+            return json;
+        });
+
         return {
-            incidents: incidents.map((i) => i.toPublicJSON()),
+            incidents: incidentsJson,
             total,
             nextCursor,
             hasMore,

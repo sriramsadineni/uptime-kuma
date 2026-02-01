@@ -883,33 +883,57 @@
                                         {{ fetchEntriesError }}
                                     </div>
 
-                                    <div v-if="availableEntries.length > 0" class="list-group mb-2">
-                                        <label
-                                            v-for="entry in availableEntries"
-                                            :key="entry"
-                                            class="list-group-item list-group-item-action d-flex align-items-center"
+                                    <!-- Editable list of selected entries -->
+                                    <div v-if="monitor.healthCheckEntries && monitor.healthCheckEntries.length > 0" class="mb-3">
+                                        <small class="text-muted d-block mb-1">{{ $t("Selected entries:") }}</small>
+                                        <div
+                                            v-for="(entry, index) in monitor.healthCheckEntries"
+                                            :key="'selected-' + index"
+                                            class="input-group input-group-sm mb-1"
                                         >
                                             <input
-                                                type="checkbox"
-                                                class="form-check-input me-2"
-                                                :checked="isEntrySelected(entry)"
-                                                @change="toggleEntry(entry)"
+                                                type="text"
+                                                class="form-control"
+                                                :value="entry"
+                                                :placeholder="$t('Entry key')"
+                                                @input="updateEntryKey(index, $event.target.value)"
                                             />
-                                            <span class="flex-grow-1">{{ entry }}</span>
-                                            <span
-                                                v-if="entryStatuses[entry]"
-                                                class="badge"
-                                                :class="entryStatuses[entry] === 'Healthy' ? 'bg-success' : 'bg-danger'"
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-danger"
+                                                :title="$t('Delete')"
+                                                @click="removeEntry(index)"
                                             >
-                                                {{ entryStatuses[entry] }}
-                                            </span>
-                                        </label>
+                                                <font-awesome-icon icon="times" />
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div v-if="monitor.healthCheckEntries && monitor.healthCheckEntries.length > 0" class="mt-2">
-                                        <small class="text-muted">
-                                            {{ $t("Selected entries:") }} {{ monitor.healthCheckEntries.join(", ") }}
-                                        </small>
+                                    <!-- Add from fetched entries -->
+                                    <div v-if="availableEntries.length > 0" class="mt-2">
+                                        <small class="text-muted d-block mb-1">{{ $t("Add from fetched:") }}</small>
+                                        <div class="list-group">
+                                            <label
+                                                v-for="entry in availableEntries"
+                                                :key="entry"
+                                                class="list-group-item list-group-item-action d-flex align-items-center"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input me-2"
+                                                    :checked="isEntrySelected(entry)"
+                                                    @change="toggleEntry(entry)"
+                                                />
+                                                <span class="flex-grow-1">{{ entry }}</span>
+                                                <span
+                                                    v-if="entryStatuses[entry]"
+                                                    class="badge"
+                                                    :class="entryStatuses[entry] === 'Healthy' ? 'bg-success' : 'bg-danger'"
+                                                >
+                                                    {{ entryStatuses[entry] }}
+                                                </span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -3680,6 +3704,34 @@ message HealthCheckResponse {
             } else {
                 this.monitor.healthCheckEntries.splice(index, 1);
             }
+        },
+
+        /**
+         * Update an entry key at the given index
+         * @param {number} index Index in healthCheckEntries
+         * @param {string} newKey New entry key
+         * @returns {void}
+         */
+        updateEntryKey(index, newKey) {
+            if (!this.monitor.healthCheckEntries || index < 0 || index >= this.monitor.healthCheckEntries.length) {
+                return;
+            }
+            const trimmed = (newKey || "").trim();
+            if (trimmed) {
+                this.monitor.healthCheckEntries[index] = trimmed;
+            }
+        },
+
+        /**
+         * Remove an entry at the given index
+         * @param {number} index Index in healthCheckEntries
+         * @returns {void}
+         */
+        removeEntry(index) {
+            if (!this.monitor.healthCheckEntries || index < 0 || index >= this.monitor.healthCheckEntries.length) {
+                return;
+            }
+            this.monitor.healthCheckEntries.splice(index, 1);
         },
 
         /**

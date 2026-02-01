@@ -151,17 +151,43 @@ export default {
             this.startMonth = this.startMonth.add(offset, "month");
         },
         getMaintenanceForMonth(month) {
-            return this.maintenanceList.filter(m => {
-                const start = dayjs(m.start_date || m.startDate);
-                const end = dayjs(m.end_date || m.endDate);
-                // Check if maintenance overlaps with the month
-                return start.isBefore(month.end) && end.isAfter(month.start);
+            return this.maintenanceList.filter((m) => {
+                const slots = this.getMaintenanceTimeslots(m);
+                return slots.some((slot) => {
+                    const start = dayjs(slot.startDate || slot.start);
+                    const end = dayjs(slot.endDate || slot.end);
+                    return start.isBefore(month.end) && end.isAfter(month.start);
+                });
             });
         },
+        getMaintenanceTimeslots(maintenance) {
+            if (maintenance.timeslotList && maintenance.timeslotList.length > 0) {
+                return maintenance.timeslotList;
+            }
+            const start = maintenance.dateRange?.[0] || maintenance.start_date || maintenance.startDate;
+            const end = maintenance.dateRange?.[1] || maintenance.end_date || maintenance.endDate;
+            if (start && end) {
+                return [{ startDate: start, endDate: end }];
+            }
+            return [];
+        },
         formatMaintenanceTime(maintenance) {
-            const start = dayjs(maintenance.start_date || maintenance.startDate);
-            const end = dayjs(maintenance.end_date || maintenance.endDate);
-            return `${start.format("MMM D, YYYY [at] HH:mm")} - ${end.format("MMM D, YYYY [at] HH:mm")}`;
+            if (maintenance.strategy === "manual") {
+                return this.$t("strategyManual");
+            }
+            const slots = this.getMaintenanceTimeslots(maintenance);
+            if (slots.length === 0) {
+                return this.$t("No schedule");
+            }
+            const parts = slots.slice(0, 2).map((slot) => {
+                const start = dayjs(slot.startDate || slot.start);
+                const end = dayjs(slot.endDate || slot.end);
+                return `${start.format("MMM D, HH:mm")} – ${end.format("MMM D, HH:mm")}`;
+            });
+            if (slots.length > 2) {
+                parts.push("…");
+            }
+            return parts.join(" · ");
         },
         getMaintenanceHTML(content) {
             if (content != null) {
@@ -170,30 +196,36 @@ export default {
             return "";
         },
         getStatusClass(maintenance) {
-            const now = dayjs();
-            const start = dayjs(maintenance.start_date || maintenance.startDate);
-            const end = dayjs(maintenance.end_date || maintenance.endDate);
-            
-            if (now.isBefore(start)) {
+            const status = maintenance.status || "";
+            if (status === "scheduled") {
                 return "status-scheduled";
-            } else if (now.isAfter(end)) {
-                return "status-completed";
-            } else {
+            }
+            if (status === "under-maintenance") {
                 return "status-ongoing";
             }
+            if (status === "ended") {
+                return "status-completed";
+            }
+            if (status === "inactive") {
+                return "status-inactive";
+            }
+            return "status-scheduled";
         },
         getStatusText(maintenance) {
-            const now = dayjs();
-            const start = dayjs(maintenance.start_date || maintenance.startDate);
-            const end = dayjs(maintenance.end_date || maintenance.endDate);
-            
-            if (now.isBefore(start)) {
+            const status = maintenance.status || "";
+            if (status === "scheduled") {
                 return this.$t("Scheduled");
-            } else if (now.isAfter(end)) {
-                return this.$t("Completed");
-            } else {
+            }
+            if (status === "under-maintenance") {
                 return this.$t("Ongoing");
             }
+            if (status === "ended") {
+                return this.$t("Completed");
+            }
+            if (status === "inactive") {
+                return this.$t("Inactive");
+            }
+            return this.$t("Scheduled");
         },
     },
 };
@@ -426,6 +458,11 @@ export default {
     &.status-completed {
         background: rgba($emerald-500, 0.1);
         color: $emerald-500;
+    }
+
+    &.status-inactive {
+        background: rgba($zinc-500, 0.1);
+        color: $zinc-500;
     }
 }
 </style>

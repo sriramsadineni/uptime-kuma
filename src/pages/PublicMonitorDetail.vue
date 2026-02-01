@@ -104,9 +104,7 @@
                         class="event-item"
                     >
                         <Status :status="beat.status" />
-                        <span class="event-time">
-                            <Datetime :value="beat.time" />
-                        </span>
+                        <span class="event-time">{{ formatEventTime(beat.time) }}</span>
                         <span class="event-msg">{{ beat.msg || "—" }}</span>
                     </div>
                 </div>
@@ -126,7 +124,6 @@ import { defineAsyncComponent } from "vue";
 import HeartbeatBar from "../components/HeartbeatBar.vue";
 import Uptime from "../components/Uptime.vue";
 import Status from "../components/Status.vue";
-import Datetime from "../components/Datetime.vue";
 import PublicHeader from "../components/PublicHeader.vue";
 import { getResBaseURL } from "../util-frontend";
 
@@ -137,7 +134,6 @@ export default {
         HeartbeatBar,
         Uptime,
         Status,
-        Datetime,
         PingChart,
         PublicHeader,
     },
@@ -242,6 +238,9 @@ export default {
         }
     },
     methods: {
+        formatEventTime(value) {
+            return this.$root.datetimeFormat(value, "MMM D, YYYY [at] HH:mm") || "";
+        },
         applyTheme(theme) {
             this.$root.statusPageTheme = theme || "auto";
             this.loadedTheme = true;

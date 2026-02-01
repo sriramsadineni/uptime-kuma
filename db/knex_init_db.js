@@ -158,6 +158,8 @@ async function createTables() {
         table.boolean("pin").notNullable().defaultTo(true);
         table.boolean("active").notNullable().defaultTo(true);
         table.integer("status_page_id").unsigned();
+        table.text("affected_monitors").nullable();
+        table.text("affected_areas").nullable();
     });
 
     // maintenance

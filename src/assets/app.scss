@@ -1195,6 +1195,10 @@ optgroup {
         color: $dark-font-color;
     }
 
+    .form-check-label {
+        color: $dark-font-color;
+    }
+
     .form-check-input:checked {
         background-color: $primary;
         border-color: $primary;

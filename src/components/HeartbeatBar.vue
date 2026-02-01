@@ -151,9 +151,17 @@ export default {
                 return [];
             }
 
-            // If heartbeat days is configured (not auto), data is already aggregated from server
+            // If heartbeat days is configured (not auto), main bar gets full aggregated list from server.
+            // Entry bars (monitorId === null) may have fewer beats—pad with placeholders so bar width matches.
             if (this.normalizedHeartbeatBarDays > 0 && this.beatList.length > 0) {
-                // Show all beats from server - they are already properly aggregated
+                if (
+                    this.monitorId === null &&
+                    this.maxBeat > 0 &&
+                    this.beatList.length < this.maxBeat
+                ) {
+                    const placeholders = Array(this.maxBeat - this.beatList.length).fill(0);
+                    return placeholders.concat(this.beatList);
+                }
                 return this.beatList;
             }
 
@@ -162,6 +170,13 @@ export default {
 
             // Handle case where maxBeat is -1 (no limit)
             if (this.maxBeat <= 0) {
+                // Entry bar with no maxBeat yet (e.g. not laid out): pad so bar matches main bar width
+                if (this.monitorId === null && this.beatList.length > 0) {
+                    const len = 96;
+                    if (this.beatList.length < len) {
+                        return Array(len - this.beatList.length).fill(0).concat(this.beatList);
+                    }
+                }
                 return this.beatList;
             }
 

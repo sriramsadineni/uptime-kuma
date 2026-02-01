@@ -65,6 +65,11 @@
                                         · {{ $t("Updated") }} {{ formatDateTime(incident.lastUpdatedDate) }}
                                     </span>
                                 </div>
+                                <div v-if="incident.affectedAreas && incident.affectedAreas.trim()" class="incident-affected mt-1">
+                                    <span class="incident-affected-item">
+                                        {{ $t("Affected Areas") }}: {{ incident.affectedAreas }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -434,6 +439,23 @@ export default {
 
     .dark & {
         color: $zinc-500;
+    }
+}
+
+.incident-affected {
+    font-size: 0.6875rem;
+    color: $zinc-500;
+
+    .dark & {
+        color: $zinc-400;
+    }
+}
+
+.incident-affected-item {
+    display: block;
+
+    & + .incident-affected-item {
+        margin-top: 0.125rem;
     }
 }
 

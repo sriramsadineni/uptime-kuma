@@ -35,6 +35,48 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">{{ $t("Affected Monitors") }}</label>
+                            <div v-if="monitors.length === 0" class="form-text text-muted small">
+                                {{ $t("No monitors on this status page") }}
+                            </div>
+                            <VueMultiselect
+                                v-else
+                                v-model="selectedAffectedMonitors"
+                                :options="affectedMonitorsOptionsWithSelectAll"
+                                track-by="id"
+                                label="name"
+                                :multiple="true"
+                                :close-on-select="false"
+                                :clear-on-select="false"
+                                :preserve-search="true"
+                                :placeholder="$t('Pick Affected Monitors...')"
+                                :preselect-first="false"
+                                :max-height="400"
+                                :taggable="false"
+                                @select="onAffectedMonitorSelect"
+                                @remove="onAffectedMonitorRemove"
+                            >
+                                <template #option="props">
+                                    <span v-if="props.option.id === 'select-all'">
+                                        {{ affectedMonitorsAllSelected ? $t("Deselect All") : $t("Select All") }}
+                                    </span>
+                                    <span v-else>{{ props.option.name }}</span>
+                                </template>
+                            </VueMultiselect>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="incident-affected-areas" class="form-label">{{ $t("Affected Areas") }}</label>
+                            <input
+                                id="incident-affected-areas"
+                                v-model="form.affectedAreas"
+                                type="text"
+                                class="form-control"
+                                :placeholder="$t('Comma separated areas')"
+                            />
+                        </div>
+
+                        <div class="mb-3">
                             <label for="incident-style" class="form-label">{{ $t("Style") }}</label>
                             <select id="incident-style" v-model="form.style" class="form-select">
                                 <option value="info">{{ $t("info") }}</option>
@@ -89,17 +131,23 @@
 
 <script>
 import { Modal } from "bootstrap";
+import VueMultiselect from "vue-multiselect";
 import Confirm from "./Confirm.vue";
 
 export default {
     name: "IncidentManageModal",
     components: {
         Confirm,
+        VueMultiselect,
     },
     props: {
         slug: {
             type: String,
             required: true,
+        },
+        monitors: {
+            type: Array,
+            default: () => [],
         },
     },
     emits: ["incident-updated"],
@@ -114,8 +162,38 @@ export default {
                 content: "",
                 style: "warning",
                 pin: true,
+                affectedMonitors: "",
+                affectedAreas: "",
             },
         };
+    },
+    computed: {
+        selectedAffectedMonitors: {
+            get() {
+                const ids = (this.form.affectedMonitors || "")
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+                return this.monitors.filter((m) => ids.includes(String(m.id)));
+            },
+            set(val) {
+                const filtered = (val || []).filter((m) => m && m.id !== "select-all");
+                this.form.affectedMonitors = filtered.map((m) => m.id).join(",");
+            },
+        },
+        affectedMonitorsOptionsWithSelectAll() {
+            return [
+                {
+                    id: "select-all",
+                    name: this.affectedMonitorsAllSelected ? this.$t("Deselect All") : this.$t("Select All"),
+                },
+                ...this.monitors,
+            ];
+        },
+        affectedMonitorsAllSelected() {
+            const selected = this.selectedAffectedMonitors;
+            return this.monitors.length > 0 && selected.length === this.monitors.length;
+        },
     },
     mounted() {
         this.modal = new Modal(this.$refs.modal);
@@ -133,8 +211,26 @@ export default {
                 content: incident.content,
                 style: incident.style || "warning",
                 pin: !!incident.pin,
+                affectedMonitors: (incident.affectedMonitors || "").trim(),
+                affectedAreas: (incident.affectedAreas || "").trim(),
             };
             this.modal.show();
+        },
+
+        onAffectedMonitorSelect(selectedOption) {
+            if (selectedOption.id === "select-all") {
+                if (this.affectedMonitorsAllSelected) {
+                    this.selectedAffectedMonitors = [];
+                } else {
+                    this.selectedAffectedMonitors = [...this.monitors];
+                }
+            }
+        },
+
+        onAffectedMonitorRemove(removedOption) {
+            if (removedOption.id === "select-all") {
+                this.selectedAffectedMonitors = this.selectedAffectedMonitors.filter((m) => m.id !== "select-all");
+            }
         },
 
         /**
@@ -201,4 +297,5 @@ export default {
         font-size: 0.875rem;
     }
 }
+
 </style>

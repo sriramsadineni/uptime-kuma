@@ -28,6 +28,36 @@
             {{ $t("markdownSupported") }}
         </div>
 
+        <div v-if="monitors && monitors.length > 0" class="mt-3">
+            <strong>{{ $t("Affected Monitors") }}:</strong>
+            <VueMultiselect
+                :model-value="selectedAffectedMonitors"
+                :options="monitors"
+                track-by="id"
+                label="name"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :placeholder="$t('Pick Affected Monitors...')"
+                :preselect-first="false"
+                :max-height="400"
+                :taggable="false"
+                class="mt-1"
+                @update:model-value="updateAffectedMonitors"
+            />
+        </div>
+        <div class="mt-2">
+            <strong>{{ $t("Affected Areas") }}:</strong>
+            <input
+                type="text"
+                class="form-control form-control-sm mt-1"
+                :value="modelValue.affectedAreas"
+                :placeholder="$t('Comma separated areas')"
+                @input="updateField('affectedAreas', $event.target.value)"
+            />
+        </div>
+
         <div class="mt-3">
             <button class="btn btn-light me-2" data-testid="post-incident-button" @click="$emit('post')">
                 <font-awesome-icon icon="bullhorn" />
@@ -87,21 +117,43 @@
 </template>
 
 <script>
+import VueMultiselect from "vue-multiselect";
+
 export default {
     name: "IncidentEditForm",
+    components: {
+        VueMultiselect,
+    },
     props: {
         modelValue: {
             type: Object,
             required: true,
         },
+        monitors: {
+            type: Array,
+            default: () => [],
+        },
     },
     emits: ["update:modelValue", "post", "cancel"],
+    computed: {
+        selectedAffectedMonitors() {
+            const ids = (this.modelValue.affectedMonitors || "")
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean);
+            return this.monitors.filter((m) => ids.includes(String(m.id)));
+        },
+    },
     methods: {
         updateField(field, value) {
             this.$emit("update:modelValue", {
                 ...this.modelValue,
                 [field]: value,
             });
+        },
+        updateAffectedMonitors(val) {
+            const ids = (val || []).map((m) => m.id).join(",");
+            this.updateField("affectedMonitors", ids);
         },
     },
 };
